@@ -5,7 +5,55 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>YasIX Store</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style></style>
+<style> 
+  :root {
+    --bg: #020408;
+    --surface: #080e18;
+    --cyan: #00f5ff;
+    --blue: #0066ff;
+    --violet: #7b2fff;
+    --gold: #ffd700;
+    --text: #e0eeff;
+    --muted: #5a7a9a;
+    --card: #0a1628;
+    --border: rgba(0,245,255,0.15);
+    --glow: 0 0 20px rgba(0,245,255,0.4);
+  }
+</style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+ 
+  html { scroll-behavior: smooth; }
+ 
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+   /* Neon glowed Custom Cursor */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--cyan);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.2s, height 0.2s;
+    box-shadow: 0 0 10px var(--cyan), 0 0 20px var(--cyan);
+  }
+  /* Cursor outside ring for futuristic look */
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(0,245,255,0.5);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: all 0.15s ease;
+  }
 </head>
 <body>
     <div class="orb orb1"></div>
