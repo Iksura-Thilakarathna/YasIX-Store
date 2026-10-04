@@ -675,11 +675,6 @@
       margin-left: 6px;
     }
 
-    .product-actions {
-      display: flex;
-      gap: 8px;
-    }
-
     .btn-add-cart {
       background: rgba(0, 245, 255, 0.1);
       border: 1px solid var(--border);
@@ -696,6 +691,92 @@
       background: var(--cyan);
       color: var(--bg);
       box-shadow: 0 0 12px var(--cyan-glow);
+    }
+
+    /* FLASH SALE DEALS SECTION */
+    .deals-section {
+      padding: 80px 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(138, 43, 226, 0.08) 50%, transparent 100%);
+      position: relative;
+    }
+
+    .deals-card {
+      background: rgba(11, 19, 41, 0.85);
+      border: 1px solid var(--neon-pink);
+      border-radius: 20px;
+      padding: 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+      box-shadow: 0 0 30px rgba(255, 0, 85, 0.2);
+    }
+
+    .deals-timer-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--neon-pink);
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+    }
+
+    .countdown-box {
+      display: flex;
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .time-block {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 0, 85, 0.3);
+      border-radius: 10px;
+      padding: 12px 18px;
+      text-align: center;
+      min-width: 70px;
+    }
+
+    .time-val {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: white;
+      text-shadow: 0 0 10px var(--neon-pink);
+    }
+
+    .time-unit {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    .progress-bar-container {
+      margin-top: 24px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      color: var(--muted);
+    }
+
+    .progress-bar {
+      height: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 78%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--neon-pink), var(--gold));
+      box-shadow: 0 0 12px var(--neon-pink);
     }
   </style>
 </head>
@@ -808,7 +889,6 @@
 
         <!-- PRODUCT GRID -->
         <div class="products-grid">
-
           <!-- Product 1 -->
           <div class="product-card" data-category="neural">
             <div class="product-tag">POPULAR</div>
@@ -820,9 +900,7 @@
             <div class="product-rating">★★★★★ <span>(128 Reviews)</span></div>
             <div class="product-footer">
               <div class="product-price">$399.00 <del>$499.00</del></div>
-              <div class="product-actions">
-                <button class="btn-add-cart">+ CART</button>
-              </div>
+              <button class="btn-add-cart">+ CART</button>
             </div>
           </div>
 
@@ -837,9 +915,7 @@
             <div class="product-rating">★★★★★ <span>(210 Reviews)</span></div>
             <div class="product-footer">
               <div class="product-price">$2,299.00</div>
-              <div class="product-actions">
-                <button class="btn-add-cart">+ CART</button>
-              </div>
+              <button class="btn-add-cart">+ CART</button>
             </div>
           </div>
 
@@ -854,9 +930,7 @@
             <div class="product-rating">★★★★☆ <span>(85 Reviews)</span></div>
             <div class="product-footer">
               <div class="product-price">$249.00 <del>$299.00</del></div>
-              <div class="product-actions">
-                <button class="btn-add-cart">+ CART</button>
-              </div>
+              <button class="btn-add-cart">+ CART</button>
             </div>
           </div>
 
@@ -871,46 +945,64 @@
             <div class="product-rating">★★★★★ <span>(94 Reviews)</span></div>
             <div class="product-footer">
               <div class="product-price">$1,199.00</div>
-              <div class="product-actions">
-                <button class="btn-add-cart">+ CART</button>
+              <button class="btn-add-cart">+ CART</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FLASH SALE DEALS SECTION -->
+    <section class="deals-section" id="deals">
+      <div class="container">
+        <div class="deals-card">
+          <div class="deals-info">
+            <div class="deals-timer-header">
+              ⚡ DAILY CYBER FLASH DROP // 40% OFF
+            </div>
+            <h2 class="section-title" style="font-size: 2.2rem; margin-bottom: 16px;">
+              YasIX Apex Mech-Rig 2026 Edition
+            </h2>
+            <p style="color: var(--muted); line-height: 1.6; margin-bottom: 24px;">
+              Custom handcrafted titanium workstation rig with integrated liquid nitrogen loop and dual RTX 5090 GPUs. Special 24-hour flash offer.
+            </p>
+
+            <div class="countdown-box">
+              <div class="time-block">
+                <div class="time-val" id="hours">04</div>
+                <div class="time-unit">Hours</div>
+              </div>
+              <div class="time-block">
+                <div class="time-val" id="minutes">35</div>
+                <div class="time-unit">Mins</div>
+              </div>
+              <div class="time-block">
+                <div class="time-val" id="seconds">12</div>
+                <div class="time-unit">Secs</div>
+              </div>
+            </div>
+
+            <div class="progress-bar-container">
+              <div class="progress-label">
+                <span>Stock Claimed: 78%</span>
+                <span>Only 11 Units Left</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill"></div>
               </div>
             </div>
           </div>
 
-          <!-- Product 5 -->
-          <div class="product-card" data-category="rgb">
-            <div class="product-tag">BEST VALUE</div>
-            <div class="product-img-box">
-              <div class="product-icon">🖱️</div>
+          <div style="text-align: center; background: rgba(0,0,0,0.3); padding: 32px; border-radius: 16px; border: 1px solid rgba(255,0,85,0.2);">
+            <div style="font-size: 6rem; margin-bottom: 16px; filter: drop-shadow(0 0 20px var(--neon-pink));">🕹️</div>
+            <div style="font-family: 'Orbitron'; font-size: 2rem; color: var(--gold); margin-bottom: 8px;">
+              $2,999.00 <span style="font-size: 1.1rem; color: var(--muted); text-decoration: line-through;">$4,999.00</span>
             </div>
-            <h3 class="product-title">Synapse Ultra Cyber Mouse</h3>
-            <p class="product-desc">36,000 DPI carbon fiber shell with zero-drag mag-lev gliders.</p>
-            <div class="product-rating">★★★★☆ <span>(164 Reviews)</span></div>
-            <div class="product-footer">
-              <div class="product-price">$149.00 <del>$179.00</del></div>
-              <div class="product-actions">
-                <button class="btn-add-cart">+ CART</button>
-              </div>
-            </div>
+            <p style="color: var(--neon-pink); font-family: 'Orbitron'; font-size: 0.9rem; margin-bottom: 24px;">YOU SAVE $2,000.00 INSTANTLY</p>
+            <button class="btn-primary" style="background: linear-gradient(135deg, var(--neon-pink), var(--violet)); box-shadow: 0 0 20px rgba(255,0,85,0.5); width: 100%; justify-content: center;">
+              CLAIM DEAL NOW 🔥
+            </button>
           </div>
-
-          <!-- Product 6 -->
-          <div class="product-card" data-category="quantum">
-            <div class="product-tag">EXTREME</div>
-            <div class="product-img-box">
-              <div class="product-icon">💻</div>
-            </div>
-            <h3 class="product-title">Quantum Core i11 15900KS</h3>
-            <p class="product-desc">32 Cores, 64 Threads, 6.2GHz Unlocked Quantum Cache architecture.</p>
-            <div class="product-rating">★★★★★ <span>(78 Reviews)</span></div>
-            <div class="product-footer">
-              <div class="product-price">$899.00</div>
-              <div class="product-actions">
-                <button class="btn-add-cart">+ CART</button>
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
     </section>
@@ -939,8 +1031,8 @@
     }
     renderCursor();
 
-    // Interactive element hover
-    const interactiveElements = 'a, button, input, .product-card, .hero-card, .tab-btn';
+    // Hover effect
+    const interactiveElements = 'a, button, input, .product-card, .hero-card, .deals-card, .tab-btn';
     document.addEventListener('mouseover', (e) => {
       if (e.target.closest(interactiveElements)) {
         document.body.classList.add('cursor-hover');
@@ -960,7 +1052,6 @@
       btn.addEventListener('click', () => {
         tabBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-
         const cat = btn.getAttribute('data-category');
 
         productCards.forEach(card => {
@@ -972,6 +1063,24 @@
         });
       });
     });
+
+    // Countdown Timer Script
+    let totalSeconds = 4 * 3600 + 35 * 60 + 12;
+    const hoursEl = document.getElementById('hours');
+    const minutesEl = document.getElementById('minutes');
+    const secondsEl = document.getElementById('seconds');
+
+    setInterval(() => {
+      if (totalSeconds > 0) {
+        totalSeconds--;
+        const h = Math.floor(totalSeconds / 3600);
+        const m = Math.floor((totalSeconds % 3600) / 60);
+        const s = totalSeconds % 60;
+        hoursEl.textContent = String(h).padStart(2, '0');
+        minutesEl.textContent = String(m).padStart(2, '0');
+        secondsEl.textContent = String(s).padStart(2, '0');
+      }
+    }, 1000);
   </script>
 </body>
 </html>
