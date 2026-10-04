@@ -518,6 +518,185 @@
       color: var(--muted);
       margin-top: 4px;
     }
+
+    /* STORE CATALOG / PRODUCTS SECTION */
+    .store-section {
+      padding: 80px 0;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .section-subtitle {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--cyan);
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+    }
+
+    /* FILTER TABS */
+    .filter-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 10px 24px;
+      border-radius: 30px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .tab-btn:hover, .tab-btn.active {
+      background: var(--cyan);
+      color: var(--bg);
+      border-color: var(--cyan);
+      box-shadow: 0 0 15px var(--cyan-glow);
+    }
+
+    /* PRODUCT GRID */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 32px;
+    }
+
+    .product-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      position: relative;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      backdrop-filter: blur(10px);
+    }
+
+    .product-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--cyan);
+      box-shadow: 0 12px 30px rgba(0, 245, 255, 0.2);
+    }
+
+    .product-tag {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: rgba(0, 245, 255, 0.15);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .product-img-box {
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+    }
+
+    .product-icon {
+      font-size: 4.5rem;
+      filter: drop-shadow(0 0 10px rgba(0, 245, 255, 0.5));
+    }
+
+    .product-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .product-desc {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+      flex-grow: 1;
+    }
+
+    .product-rating {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--gold);
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+
+    .product-rating span {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .product-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 16px;
+    }
+
+    .product-price {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--cyan);
+    }
+
+    .product-price del {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-left: 6px;
+    }
+
+    .product-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-add-cart {
+      background: rgba(0, 245, 255, 0.1);
+      border: 1px solid var(--border);
+      color: var(--cyan);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-add-cart:hover {
+      background: var(--cyan);
+      color: var(--bg);
+      box-shadow: 0 0 12px var(--cyan-glow);
+    }
   </style>
 </head>
 <body>
@@ -548,7 +727,7 @@
         <li><a href="#contact">Contact</a></li>
       </ul>
       <div class="nav-actions">
-        <button class="btn-cart" onclick="alert('Cart preview feature active!')">
+        <button class="btn-cart" onclick="alert('Cart active!')">
           🛒 CART <span class="cart-badge">3</span>
         </button>
       </div>
@@ -609,6 +788,132 @@
         </div>
       </div>
     </section>
+
+    <!-- STORE CATALOG SECTION -->
+    <section class="store-section" id="store">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-subtitle">// STORE CATALOG</div>
+          <h2 class="section-title">FEATURED CYBER HARDWARE</h2>
+        </div>
+
+        <!-- FILTER TABS -->
+        <div class="filter-tabs">
+          <button class="tab-btn active" data-category="all">ALL GEAR</button>
+          <button class="tab-btn" data-category="gpu">CYBER GPUS</button>
+          <button class="tab-btn" data-category="neural">NEURAL HEURISTICS</button>
+          <button class="tab-btn" data-category="rgb">RGB KITS</button>
+          <button class="tab-btn" data-category="quantum">QUANTUM GEAR</button>
+        </div>
+
+        <!-- PRODUCT GRID -->
+        <div class="products-grid">
+
+          <!-- Product 1 -->
+          <div class="product-card" data-category="neural">
+            <div class="product-tag">POPULAR</div>
+            <div class="product-img-box">
+              <div class="product-icon">🎧</div>
+            </div>
+            <h3 class="product-title">YasIX Synapse Neural Headset</h3>
+            <p class="product-desc">Spatial 7.1 spatial audio with direct neural brainwave acoustic feedback sync.</p>
+            <div class="product-rating">★★★★★ <span>(128 Reviews)</span></div>
+            <div class="product-footer">
+              <div class="product-price">$399.00 <del>$499.00</del></div>
+              <div class="product-actions">
+                <button class="btn-add-cart">+ CART</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product 2 -->
+          <div class="product-card" data-category="gpu">
+            <div class="product-tag">TOP PERFORMER</div>
+            <div class="product-img-box">
+              <div class="product-icon">⚡</div>
+            </div>
+            <h3 class="product-title">RTX 5090 Cyber-Quantum</h3>
+            <p class="product-desc">32GB GDDR7, DLSS 4.0 frame gen, dual chamber vapor cooling array.</p>
+            <div class="product-rating">★★★★★ <span>(210 Reviews)</span></div>
+            <div class="product-footer">
+              <div class="product-price">$2,299.00</div>
+              <div class="product-actions">
+                <button class="btn-add-cart">+ CART</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product 3 -->
+          <div class="product-card" data-category="rgb">
+            <div class="product-tag">NEW RELEASE</div>
+            <div class="product-img-box">
+              <div class="product-icon">⌨️</div>
+            </div>
+            <h3 class="product-title">AeroBlade Cyber Keyboard</h3>
+            <p class="product-desc">Opto-magnetic switches with customizable per-key OLED hologram HUD.</p>
+            <div class="product-rating">★★★★☆ <span>(85 Reviews)</span></div>
+            <div class="product-footer">
+              <div class="product-price">$249.00 <del>$299.00</del></div>
+              <div class="product-actions">
+                <button class="btn-add-cart">+ CART</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product 4 -->
+          <div class="product-card" data-category="quantum">
+            <div class="product-tag">HOT DEAL</div>
+            <div class="product-img-box">
+              <div class="product-icon">🖥️</div>
+            </div>
+            <h3 class="product-title">HoloView 360Hz Curved HUD</h3>
+            <p class="product-desc">49-inch OLED Quantum Dot display, 0.03ms GTG response time.</p>
+            <div class="product-rating">★★★★★ <span>(94 Reviews)</span></div>
+            <div class="product-footer">
+              <div class="product-price">$1,199.00</div>
+              <div class="product-actions">
+                <button class="btn-add-cart">+ CART</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product 5 -->
+          <div class="product-card" data-category="rgb">
+            <div class="product-tag">BEST VALUE</div>
+            <div class="product-img-box">
+              <div class="product-icon">🖱️</div>
+            </div>
+            <h3 class="product-title">Synapse Ultra Cyber Mouse</h3>
+            <p class="product-desc">36,000 DPI carbon fiber shell with zero-drag mag-lev gliders.</p>
+            <div class="product-rating">★★★★☆ <span>(164 Reviews)</span></div>
+            <div class="product-footer">
+              <div class="product-price">$149.00 <del>$179.00</del></div>
+              <div class="product-actions">
+                <button class="btn-add-cart">+ CART</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product 6 -->
+          <div class="product-card" data-category="quantum">
+            <div class="product-tag">EXTREME</div>
+            <div class="product-img-box">
+              <div class="product-icon">💻</div>
+            </div>
+            <h3 class="product-title">Quantum Core i11 15900KS</h3>
+            <p class="product-desc">32 Cores, 64 Threads, 6.2GHz Unlocked Quantum Cache architecture.</p>
+            <div class="product-rating">★★★★★ <span>(78 Reviews)</span></div>
+            <div class="product-footer">
+              <div class="product-price">$899.00</div>
+              <div class="product-actions">
+                <button class="btn-add-cart">+ CART</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -634,8 +939,8 @@
     }
     renderCursor();
 
-    // Hover effect for interactive elements
-    const interactiveElements = 'a, button, input, .hero-card, .interactive';
+    // Interactive element hover
+    const interactiveElements = 'a, button, input, .product-card, .hero-card, .tab-btn';
     document.addEventListener('mouseover', (e) => {
       if (e.target.closest(interactiveElements)) {
         document.body.classList.add('cursor-hover');
@@ -645,6 +950,27 @@
       if (e.target.closest(interactiveElements)) {
         document.body.classList.remove('cursor-hover');
       }
+    });
+
+    // Filter Tabs Script
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const productCards = document.querySelectorAll('.product-card');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const cat = btn.getAttribute('data-category');
+
+        productCards.forEach(card => {
+          if (cat === 'all' || card.getAttribute('data-category') === cat) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
     });
   </script>
 </body>
