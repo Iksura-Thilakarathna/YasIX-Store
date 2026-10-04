@@ -150,15 +150,15 @@
       padding: 0 24px;
     }
 
-    /* NAV BASE */
+    /* NAV */
     nav {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       z-index: 1000;
-      background: rgba(3, 7, 18, 0.8);
-      backdrop-filter: blur(12px);
+      background: rgba(3, 7, 18, 0.85);
+      backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
       padding: 16px 0;
       transition: var(--transition);
@@ -168,6 +168,12 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 32px;
     }
 
     .nav-logo {
@@ -184,17 +190,44 @@
       text-shadow: 0 0 10px var(--cyan);
     }
 
+    .nav-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 245, 255, 0.08);
+      border: 1px solid rgba(0, 245, 255, 0.2);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-family: 'Orbitron', sans-serif;
+      color: var(--cyan);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background: #00ff88;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #00ff88;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
     .nav-links {
       display: flex;
       list-style: none;
-      gap: 32px;
+      gap: 28px;
       align-items: center;
     }
 
     .nav-links a {
       color: var(--text);
       text-decoration: none;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 600;
       letter-spacing: 1px;
       transition: var(--transition);
@@ -222,9 +255,268 @@
       width: 100%;
     }
 
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-cart {
+      background: rgba(0, 245, 255, 0.1);
+      border: 1px solid var(--border);
+      color: var(--cyan);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition);
+    }
+
+    .btn-cart:hover {
+      background: var(--cyan);
+      color: var(--bg);
+      box-shadow: 0 0 15px var(--cyan-glow);
+    }
+
+    .cart-badge {
+      background: var(--neon-pink);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 10px;
+    }
+
     main {
       padding-top: 100px;
-      min-height: calc(100vh - 100px);
+    }
+
+    /* HERO SECTION */
+    .hero {
+      padding: 80px 0 60px;
+      position: relative;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(138, 43, 226, 0.15);
+      border: 1px solid rgba(138, 43, 226, 0.4);
+      color: #c084fc;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+    }
+
+    .hero-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3.6rem;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .hero-title .highlight {
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(0, 245, 255, 0.3);
+    }
+
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--muted);
+      margin-bottom: 36px;
+      line-height: 1.6;
+      max-width: 560px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      color: #000;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 14px 32px;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      text-decoration: none;
+      transition: var(--transition);
+      box-shadow: 0 0 20px rgba(0, 245, 255, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(0, 245, 255, 0.7);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 14px 32px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(0, 245, 255, 0.1);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* HERO SHOWCASE CARD */
+    .hero-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      transition: var(--transition);
+    }
+
+    .hero-card:hover {
+      border-color: var(--border-hover);
+      box-shadow: 0 0 30px var(--cyan-glow);
+    }
+
+    .hero-card-tag {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--neon-pink);
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    .hero-card-img-wrapper {
+      height: 240px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .tech-hologram {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 245, 255, 0.2) 0%, transparent 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulseHolo 4s infinite ease-in-out;
+    }
+
+    @keyframes pulseHolo {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.1); opacity: 0.9; }
+    }
+
+    .tech-icon {
+      font-size: 5rem;
+      filter: drop-shadow(0 0 15px var(--cyan));
+    }
+
+    .hero-card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+    }
+
+    .hero-card-specs {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .hero-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hero-card-price {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      color: var(--cyan);
+      font-weight: 700;
+    }
+
+    /* STATS BANNER */
+    .stats-bar {
+      margin-top: 60px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      background: rgba(11, 19, 41, 0.6);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      backdrop-filter: blur(8px);
+    }
+
+    .stat-item {
+      text-align: center;
+      border-right: 1px solid rgba(0, 245, 255, 0.1);
+    }
+
+    .stat-item:last-child {
+      border-right: none;
+    }
+
+    .stat-number {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--cyan);
+      text-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 4px;
     }
   </style>
 </head>
@@ -241,18 +533,82 @@
   <!-- Navigation -->
   <nav>
     <div class="container nav-container">
-      <a href="#" class="nav-logo">YAS<span>IX</span></a>
+      <div class="nav-left">
+        <a href="#" class="nav-logo">YAS<span>IX</span></a>
+        <div class="nav-status">
+          <span class="status-dot"></span>
+          MATRIX: ONLINE 99.9%
+        </div>
+      </div>
       <ul class="nav-links">
         <li><a href="#home">Home</a></li>
         <li><a href="#store">Store</a></li>
-        <li><a href="#help">Help</a></li>
+        <li><a href="#deals">Deals</a></li>
+        <li><a href="#features">Features</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
+      <div class="nav-actions">
+        <button class="btn-cart" onclick="alert('Cart preview feature active!')">
+          🛒 CART <span class="cart-badge">3</span>
+        </button>
+      </div>
     </div>
   </nav>
 
   <main>
-    <!-- Content sections will be added in subsequent commits -->
+    <!-- HERO SECTION -->
+    <section class="hero" id="home">
+      <div class="container">
+        <div class="hero-grid">
+          <div class="hero-content">
+            <div class="hero-badge">⚡ NEXT-GEN CYBER HARDWARE MATRIX v3.0</div>
+            <h1 class="hero-title">UPGRADE TO THE <span class="highlight">FUTURE</span> OF COMPUTING</h1>
+            <p class="hero-subtitle">
+              Engineered for extreme gaming performance, quantum neural processing, and ultra low-latency cybernetic gear.
+            </p>
+            <div class="hero-buttons">
+              <a href="#store" class="btn-primary">EXPLORE CATALOG 🚀</a>
+              <a href="#deals" class="btn-secondary">VIEW FLASH DEALS 🔥</a>
+            </div>
+          </div>
+
+          <div class="hero-card">
+            <div class="hero-card-tag">FLAGSHIP RIG</div>
+            <div class="hero-card-img-wrapper">
+              <div class="tech-hologram">
+                <div class="tech-icon">🖥️</div>
+              </div>
+            </div>
+            <h3 class="hero-card-title">YasIX Neural Rig RTX 5090</h3>
+            <p class="hero-card-specs">32GB GDDR7 | Liquid Nitrogen Cooled | 6.0 GHz Quantum Chipset</p>
+            <div class="hero-card-footer">
+              <div class="hero-card-price">$3,499.00</div>
+              <button class="btn-primary" style="padding: 8px 16px; font-size: 0.85rem;">PRE-ORDER</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATS BAR -->
+        <div class="stats-bar">
+          <div class="stat-item">
+            <div class="stat-number">150K+</div>
+            <div class="stat-label">Cyber Gamers Joined</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">0.01ms</div>
+            <div class="stat-label">Neural Response Latency</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Quantum Drone Shipping</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">99.9%</div>
+            <div class="stat-label">Matrix Uptime Rate</div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -279,7 +635,7 @@
     renderCursor();
 
     // Hover effect for interactive elements
-    const interactiveElements = 'a, button, input, .interactive';
+    const interactiveElements = 'a, button, input, .hero-card, .interactive';
     document.addEventListener('mouseover', (e) => {
       if (e.target.closest(interactiveElements)) {
         document.body.classList.add('cursor-hover');
