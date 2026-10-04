@@ -932,6 +932,163 @@
       border-color: var(--cyan);
       box-shadow: 0 0 15px var(--cyan-glow);
     }
+
+    /* MODAL QUICK VIEW */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(3, 7, 18, 0.85);
+      backdrop-filter: blur(12px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: var(--surface);
+      border: 1px solid var(--cyan);
+      border-radius: 20px;
+      max-width: 600px;
+      width: 90%;
+      padding: 36px;
+      position: relative;
+      box-shadow: 0 0 50px rgba(0, 245, 255, 0.3);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .modal-close:hover {
+      color: var(--cyan);
+    }
+
+    /* CART DRAWER */
+    .cart-drawer {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 380px;
+      height: 100vh;
+      background: var(--surface);
+      border-left: 1px solid var(--cyan);
+      z-index: 2000;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.3s ease;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.8);
+    }
+
+    .cart-drawer.active {
+      right: 0;
+    }
+
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      margin: 20px 0;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    /* FOOTER */
+    footer {
+      background: #02040a;
+      border-top: 1px solid var(--border);
+      padding: 60px 0 30px;
+      margin-top: 80px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1.5fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-col h4 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      color: var(--cyan);
+    }
+
+    .footer-col ul {
+      list-style: none;
+    }
+
+    .footer-col ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-col ul li a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .footer-col ul li a:hover {
+      color: var(--cyan);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 992px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .deals-card { grid-template-columns: 1fr; }
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      .hero-title { font-size: 2.4rem; }
+      .stats-bar { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -963,8 +1120,8 @@
         <li><a href="#contact">Contact</a></li>
       </ul>
       <div class="nav-actions">
-        <button class="btn-cart" onclick="alert('Cart active!')">
-          🛒 CART <span class="cart-badge">3</span>
+        <button class="btn-cart" id="open-cart-btn">
+          🛒 CART <span class="cart-badge" id="cart-count">3</span>
         </button>
       </div>
     </div>
@@ -998,7 +1155,7 @@
             <p class="hero-card-specs">32GB GDDR7 | Liquid Nitrogen Cooled | 6.0 GHz Quantum Chipset</p>
             <div class="hero-card-footer">
               <div class="hero-card-price">$3,499.00</div>
-              <button class="btn-primary" style="padding: 8px 16px; font-size: 0.85rem;">PRE-ORDER</button>
+              <button class="btn-primary" onclick="addToCart('YasIX Neural Rig RTX 5090', 3499)" style="padding: 8px 16px; font-size: 0.85rem;">PRE-ORDER</button>
             </div>
           </div>
         </div>
@@ -1055,7 +1212,7 @@
             <div class="product-rating">★★★★★ <span>(128 Reviews)</span></div>
             <div class="product-footer">
               <div class="product-price">$399.00 <del>$499.00</del></div>
-              <button class="btn-add-cart">+ CART</button>
+              <button class="btn-add-cart" onclick="addToCart('YasIX Synapse Neural Headset', 399)">+ CART</button>
             </div>
           </div>
 
@@ -1070,7 +1227,7 @@
             <div class="product-rating">★★★★★ <span>(210 Reviews)</span></div>
             <div class="product-footer">
               <div class="product-price">$2,299.00</div>
-              <button class="btn-add-cart">+ CART</button>
+              <button class="btn-add-cart" onclick="addToCart('RTX 5090 Cyber-Quantum', 2299)">+ CART</button>
             </div>
           </div>
 
@@ -1085,7 +1242,7 @@
             <div class="product-rating">★★★★☆ <span>(85 Reviews)</span></div>
             <div class="product-footer">
               <div class="product-price">$249.00 <del>$299.00</del></div>
-              <button class="btn-add-cart">+ CART</button>
+              <button class="btn-add-cart" onclick="addToCart('AeroBlade Cyber Keyboard', 249)">+ CART</button>
             </div>
           </div>
 
@@ -1100,7 +1257,7 @@
             <div class="product-rating">★★★★★ <span>(94 Reviews)</span></div>
             <div class="product-footer">
               <div class="product-price">$1,199.00</div>
-              <button class="btn-add-cart">+ CART</button>
+              <button class="btn-add-cart" onclick="addToCart('HoloView 360Hz Curved HUD', 1199)">+ CART</button>
             </div>
           </div>
         </div>
@@ -1154,7 +1311,7 @@
               $2,999.00 <span style="font-size: 1.1rem; color: var(--muted); text-decoration: line-through;">$4,999.00</span>
             </div>
             <p style="color: var(--neon-pink); font-family: 'Orbitron'; font-size: 0.9rem; margin-bottom: 24px;">YOU SAVE $2,000.00 INSTANTLY</p>
-            <button class="btn-primary" style="background: linear-gradient(135deg, var(--neon-pink), var(--violet)); box-shadow: 0 0 20px rgba(255,0,85,0.5); width: 100%; justify-content: center;">
+            <button class="btn-primary" onclick="addToCart('YasIX Apex Mech-Rig', 2999)" style="background: linear-gradient(135deg, var(--neon-pink), var(--violet)); box-shadow: 0 0 20px rgba(255,0,85,0.5); width: 100%; justify-content: center;">
               CLAIM DEAL NOW 🔥
             </button>
           </div>
@@ -1256,7 +1413,7 @@
             Get instant access to secret hardware drops, exclusive discount codes, and beta access keys directly in your inbox.
           </p>
 
-          <form class="newsletter-form" id="newsletter-form" onsubmit="event.preventDefault(); alert('🚀 Access granted! Connected to Matrix Network.');">
+          <form class="newsletter-form" onsubmit="event.preventDefault(); alert('🚀 Access granted! Connected to Matrix Network.');">
             <input type="email" class="newsletter-input" placeholder="Enter cyber email address..." required>
             <button type="submit" class="btn-primary">CONNECT 📡</button>
           </form>
@@ -1264,6 +1421,73 @@
       </div>
     </section>
   </main>
+
+  <!-- CART DRAWER -->
+  <div class="cart-drawer" id="cart-drawer">
+    <div class="cart-header">
+      <h3 style="font-family: 'Orbitron'; color: var(--cyan);">YOUR CART GEAR</h3>
+      <button class="modal-close" id="close-cart-btn">✕</button>
+    </div>
+    <div class="cart-items" id="cart-items-list">
+      <!-- Added dynamically -->
+    </div>
+    <div style="border-top: 1px solid var(--border); padding-top: 16px;">
+      <div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; margin-bottom: 16px;">
+        <span>TOTAL:</span>
+        <span id="cart-total-price" style="color: var(--cyan);">$3,047.00</span>
+      </div>
+      <button class="btn-primary" style="width: 100%; justify-content: center;" onclick="alert('Proceeding to Cyber Quantum Checkout!')">CHECKOUT NOW 🚀</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <a href="#" class="nav-logo" style="margin-bottom: 16px; display: inline-block;">YAS<span>IX</span> STORE</a>
+          <p style="color: var(--muted); line-height: 1.6; max-width: 320px;">
+            The world's leading storefront for next-generation cybernetic rigs, neural acoustics, and ultra-high speed quantum computer hardware.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4>NAVIGATION</h4>
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#store">Catalog</a></li>
+            <li><a href="#deals">Flash Sales</a></li>
+            <li><a href="#features">Features</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>SUPPORT</h4>
+          <ul>
+            <li><a href="#">Neural AI Bot</a></li>
+            <li><a href="#">Warranty Claim</a></li>
+            <li><a href="#">Order Tracking</a></li>
+            <li><a href="#">Matrix Status</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>CONNECT</h4>
+          <p style="color: var(--muted); font-size: 0.9rem; margin-bottom: 12px;">Join our Discord & GitHub matrix node</p>
+          <div style="display: flex; gap: 12px; font-size: 1.4rem;">
+            <span>🌐</span> <span>💬</span> <span>⚡</span> <span>👾</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2026 YasIX Store. All rights reserved. Matrix Division.</div>
+        <div style="color: var(--cyan); font-family: 'Orbitron'; font-size: 0.75rem;">
+          SYSTEM: ONLINE ⚡ ASIA-SOUTH-1 | LATENCY: 0.04ms
+        </div>
+      </div>
+    </div>
+  </footer>
 
   <script>
     // Custom Cursor Script
@@ -1338,6 +1562,56 @@
         secondsEl.textContent = String(s).padStart(2, '0');
       }
     }, 1000);
+
+    // Cart System
+    const cartItems = [
+      { name: 'YasIX Synapse Headset', price: 399 },
+      { name: 'RTX 5090 Cyber-Quantum', price: 2299 },
+      { name: 'AeroBlade Cyber Keyboard', price: 349 }
+    ];
+
+    const cartDrawer = document.getElementById('cart-drawer');
+    const openCartBtn = document.getElementById('open-cart-btn');
+    const closeCartBtn = document.getElementById('close-cart-btn');
+    const cartItemsList = document.getElementById('cart-items-list');
+    const cartCountEl = document.getElementById('cart-count');
+    const cartTotalEl = document.getElementById('cart-total-price');
+
+    openCartBtn.addEventListener('click', () => cartDrawer.classList.add('active'));
+    closeCartBtn.addEventListener('click', () => cartDrawer.classList.remove('active'));
+
+    function renderCart() {
+      cartItemsList.innerHTML = '';
+      let total = 0;
+      cartItems.forEach((item, index) => {
+        total += item.price;
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <div>
+            <div style="font-weight: bold; font-size: 0.9rem;">${item.name}</div>
+            <div style="color: var(--cyan); font-size: 0.85rem;">$${item.price}</div>
+          </div>
+          <button style="background:none; border:none; color:var(--neon-pink); cursor:pointer;" onclick="removeItem(${index})">✕</button>
+        `;
+        cartItemsList.appendChild(div);
+      });
+      cartCountEl.textContent = cartItems.length;
+      cartTotalEl.textContent = `$${total.toLocaleString()}.00`;
+    }
+
+    function addToCart(name, price) {
+      cartItems.push({ name, price });
+      renderCart();
+      cartDrawer.classList.add('active');
+    }
+
+    function removeItem(index) {
+      cartItems.splice(index, 1);
+      renderCart();
+    }
+
+    renderCart();
   </script>
 </body>
 </html>
