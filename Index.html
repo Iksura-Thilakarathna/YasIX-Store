@@ -778,6 +778,60 @@
       background: linear-gradient(90deg, var(--neon-pink), var(--gold));
       box-shadow: 0 0 12px var(--neon-pink);
     }
+
+    /* FEATURES SECTION */
+    .features-section {
+      padding: 80px 0;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      transition: var(--transition);
+      backdrop-filter: blur(10px);
+      text-align: center;
+    }
+
+    .feature-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px rgba(0, 245, 255, 0.15);
+    }
+
+    .feature-icon-box {
+      width: 64px;
+      height: 64px;
+      background: rgba(0, 245, 255, 0.1);
+      border: 1px solid var(--cyan);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 20px;
+      box-shadow: 0 0 15px var(--cyan-glow);
+    }
+
+    .feature-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .feature-desc {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
   </style>
 </head>
 <body>
@@ -1006,6 +1060,42 @@
         </div>
       </div>
     </section>
+
+    <!-- FEATURES SECTION -->
+    <section class="features-section" id="features">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-subtitle">// MATRIX ADVANTAGE</div>
+          <h2 class="section-title">WHY CHOOSE YASIX STORE</h2>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon-box">🚀</div>
+            <h3 class="feature-title">Quantum Shipping Grid</h3>
+            <p class="feature-desc">Autonomous drone dispatch delivering your cyber hardware worldwide with zero delay.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-box">🔒</div>
+            <h3 class="feature-title">Crypto Hardware Guarantee</h3>
+            <p class="feature-desc">Cryptographically signed authentic components guaranteed by immutable blockchain registry.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-box">🧠</div>
+            <h3 class="feature-title">24/7 Neural AI Support</h3>
+            <p class="feature-desc">Instant diagnostic assistance from our neural AI support agents and live senior engineers.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon-box">💎</div>
+            <h3 class="feature-title">Zero Latency Price Match</h3>
+            <p class="feature-desc">Automated matrix scan guarantees you receive the lowest price available anywhere online.</p>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -1032,7 +1122,7 @@
     renderCursor();
 
     // Hover effect
-    const interactiveElements = 'a, button, input, .product-card, .hero-card, .deals-card, .tab-btn';
+    const interactiveElements = 'a, button, input, .product-card, .hero-card, .deals-card, .feature-card, .tab-btn';
     document.addEventListener('mouseover', (e) => {
       if (e.target.closest(interactiveElements)) {
         document.body.classList.add('cursor-hover');
