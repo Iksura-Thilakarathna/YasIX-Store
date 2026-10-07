@@ -54,6 +54,12 @@ class Session
         return null;
     }
 
+    public static function regenerate(): void
+    {
+        self::start();
+        session_regenerate_id(true);
+    }
+
     public static function destroy(): void
     {
         self::start();
