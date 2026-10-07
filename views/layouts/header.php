@@ -33,12 +33,23 @@
         </div>
       </div>
       <ul class="nav-links">
-        <li><a href="#home">Home</a></li>
-        <li><a href="#store">Store</a></li>
-        <li><a href="#deals">Deals</a></li>
-        <li><a href="#features">Features</a></li>
-        <li><a href="#reviews">Reviews</a></li>
-        <li><a href="#contact">Contact</a></li>
+        <li><a href="/#home">Home</a></li>
+        <li><a href="/#store">Store</a></li>
+        <li><a href="/#deals">Deals</a></li>
+        <li><a href="/#features">Features</a></li>
+        <li><a href="/#reviews">Reviews</a></li>
+        <?php if (\App\Helpers\Session::has('user_id')): ?>
+          <li><a href="/account" class="btn-signup-link"><i class="fa-solid fa-user-gear"></i> <?= e(\App\Helpers\Session::get('user_name', 'Account')) ?></a></li>
+          <li>
+            <form action="/logout" method="POST" style="display:inline;">
+              <?= \App\Helpers\CSRF::field() ?>
+              <button type="submit" class="btn-logout-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+            </form>
+          </li>
+        <?php else: ?>
+          <li><a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Login</a></li>
+          <li><a href="/register" class="btn-signup-link"><i class="fa-solid fa-user-plus"></i> Sign Up</a></li>
+        <?php endif; ?>
       </ul>
       <div class="nav-actions">
         <button class="btn-cart" id="open-cart-btn">
