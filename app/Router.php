@@ -35,6 +35,23 @@ class Router
             $handler = $this->routes[$method][$path];
             $controllerClass = $handler[0];
             $action = $handler[1];
+            $middlewares = $handler[2] ?? [];
+
+            // Execute attached middleware
+            foreach ($middlewares as $key => $val) {
+                if (is_int($key)) {
+                    $mwClass = $val;
+                    $mwParams = [];
+                } else {
+                    $mwClass = $key;
+                    $mwParams = (array)$val;
+                }
+
+                if (class_exists($mwClass)) {
+                    $mwInstance = new $mwClass();
+                    $mwInstance->handle($mwParams);
+                }
+            }
 
             try {
                 $controller = new $controllerClass();
