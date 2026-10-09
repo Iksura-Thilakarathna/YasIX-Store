@@ -33,9 +33,9 @@
         </div>
       </div>
       <ul class="nav-links">
-        <li><a href="/#home">Home</a></li>
-        <li><a href="/#store">Store</a></li>
-        <li><a href="/#deals">Deals</a></li>
+        <li><a href="/">Home</a></li>
+        <li><a href="/products">Store Catalog</a></li>
+        <li><a href="/#deals">Flash Sale</a></li>
         <li><a href="/#features">Features</a></li>
         <li><a href="/#reviews">Reviews</a></li>
         <?php if (\App\Helpers\Session::has('user_id')): ?>
