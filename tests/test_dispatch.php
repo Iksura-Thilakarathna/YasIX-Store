@@ -42,3 +42,31 @@ if (str_contains($registerOutput, 'Initialize Node') && str_contains($registerOu
     echo "[FAIL] /register output missing expected elements.\n";
     exit(1);
 }
+
+// Test /products GET dispatch
+$_SERVER['REQUEST_METHOD'] = 'GET';
+$_SERVER['REQUEST_URI'] = '/products';
+ob_start();
+require __DIR__ . '/../public/index.php';
+$catalogOutput = ob_get_clean();
+
+if (str_contains($catalogOutput, 'STORE CATALOG') && str_contains($catalogOutput, 'PARAMETER FILTERS')) {
+    echo "[PASS] Front Controller successfully rendered /products catalog view (" . strlen($catalogOutput) . " bytes).\n";
+} else {
+    echo "[FAIL] /products output missing expected elements.\n";
+    exit(1);
+}
+
+// Test /products/{slug} GET dispatch
+$_SERVER['REQUEST_METHOD'] = 'GET';
+$_SERVER['REQUEST_URI'] = '/products/yasix-neural-rig-rtx-5090';
+ob_start();
+require __DIR__ . '/../public/index.php';
+$detailOutput = ob_get_clean();
+
+if (str_contains($detailOutput, 'YasIX Neural Rig RTX 5090') && str_contains($detailOutput, 'TECHNICAL PARAMETERS')) {
+    echo "[PASS] Front Controller successfully rendered /products/{slug} detail view (" . strlen($detailOutput) . " bytes).\n";
+} else {
+    echo "[FAIL] /products/{slug} detail output missing expected elements.\n";
+    exit(1);
+}

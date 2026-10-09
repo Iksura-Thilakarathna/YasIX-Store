@@ -171,8 +171,11 @@ class ProductRepository extends BaseRepository
         // Search Keyword
         if (!empty($filters['search'])) {
             $searchKeyword = '%' . trim($filters['search']) . '%';
-            $conditions[] = "(p.name LIKE :search OR p.brand LIKE :search OR p.description LIKE :search OR c.name LIKE :search)";
-            $params['search'] = $searchKeyword;
+            $conditions[] = "(p.name LIKE :s1 OR p.brand LIKE :s2 OR p.description LIKE :s3 OR c.name LIKE :s4)";
+            $params['s1'] = $searchKeyword;
+            $params['s2'] = $searchKeyword;
+            $params['s3'] = $searchKeyword;
+            $params['s4'] = $searchKeyword;
         }
 
         // Category Filter (slug or ID)
