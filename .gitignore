@@ -1,0 +1,21 @@
+# Environment configuration
+.env
+.env.local
+.env.*.local
+
+# Database & log files
+*.log
+*.sqlite
+*.sql.gz
+
+# IDEs & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# OS / Temp files
+tmp/
+temp/
