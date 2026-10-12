@@ -104,28 +104,33 @@
       <!-- Purchase & Cart Action Form -->
       <div class="action-box">
         <?php if ($product['is_available']): ?>
-          <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <label for="quantity-input" style="font-family: 'Orbitron'; font-size: 0.8rem; color: var(--cyan);">QTY:</label>
-              <input 
-                type="number" 
-                id="quantity-input" 
-                class="cyber-input" 
-                value="1" 
-                min="1" 
-                max="<?= (int)$product['stock_quantity'] ?>"
-                style="width: 70px; text-align: center; font-weight: bold;"
-              >
-            </div>
+          <form action="/cart/add" method="POST" style="margin: 0;">
+            <?= \App\Helpers\CSRF::field() ?>
+            <input type="hidden" name="product_id" value="<?= (int)$product['id'] ?>">
+            <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <label for="quantity-input" style="font-family: 'Orbitron'; font-size: 0.8rem; color: var(--cyan);">QTY:</label>
+                <input 
+                  type="number" 
+                  id="quantity-input" 
+                  name="quantity"
+                  class="cyber-input" 
+                  value="1" 
+                  min="1" 
+                  max="<?= (int)$product['stock_quantity'] ?>"
+                  style="width: 70px; text-align: center; font-weight: bold;"
+                >
+              </div>
 
-            <button 
-              class="btn-primary" 
-              style="flex: 1; justify-content: center; padding: 14px 24px;"
-              onclick="addQuantityToCart('<?= e($product['name']) ?>', <?= (float)$product['price'] ?>)"
-            >
-              ADD TO CART <i class="fa-solid fa-cart-shopping"></i>
-            </button>
-          </div>
+              <button 
+                type="submit"
+                class="btn-primary" 
+                style="flex: 1; justify-content: center; padding: 14px 24px;"
+              >
+                ADD TO CART <i class="fa-solid fa-cart-shopping"></i>
+              </button>
+            </div>
+          </form>
         <?php else: ?>
           <div class="alert-banner alert-error" style="margin: 0;">
             <i class="fa-solid fa-bell"></i>

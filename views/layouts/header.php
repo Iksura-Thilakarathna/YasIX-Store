@@ -52,9 +52,17 @@
         <?php endif; ?>
       </ul>
       <div class="nav-actions">
-        <button class="btn-cart" id="open-cart-btn">
-          <i class="fa-solid fa-cart-shopping"></i> CART <span class="cart-badge" id="cart-count">3</span>
-        </button>
+        <?php
+          $cartBadgeCount = 0;
+          if (\App\Helpers\Session::has('user_id')) {
+              try {
+                  $cartBadgeCount = (new \App\Services\CartService())->getCartCount((int)\App\Helpers\Session::get('user_id'));
+              } catch (\Throwable $e) {}
+          }
+        ?>
+        <a href="/cart" class="btn-cart" id="open-cart-btn" style="text-decoration: none; display: inline-flex; align-items: center;">
+          <i class="fa-solid fa-cart-shopping"></i> CART <span class="cart-badge" id="cart-count"><?= $cartBadgeCount ?></span>
+        </a>
       </div>
     </div>
   </nav>

@@ -5,6 +5,7 @@ use App\Controllers\ErrorController;
 use App\Controllers\AuthController;
 use App\Controllers\AccountController;
 use App\Controllers\ProductController;
+use App\Controllers\CartController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
 
@@ -15,11 +16,16 @@ return [
         '/products' => [ProductController::class, 'index'],
         '/products/{slug}' => [ProductController::class, 'detail'],
         '/product/{slug}' => [ProductController::class, 'detail'],
+        '/cart' => [CartController::class, 'index', [AuthMiddleware::class]],
         '/login' => [AuthController::class, 'loginForm'],
         '/register' => [AuthController::class, 'registerForm'],
         '/account' => [AccountController::class, 'index', [AuthMiddleware::class]],
     ],
     'POST' => [
+        '/cart/add' => [CartController::class, 'add'],
+        '/cart/update' => [CartController::class, 'update', [AuthMiddleware::class]],
+        '/cart/remove' => [CartController::class, 'remove', [AuthMiddleware::class]],
+        '/cart/clear' => [CartController::class, 'clear', [AuthMiddleware::class]],
         '/login' => [AuthController::class, 'login'],
         '/register' => [AuthController::class, 'register'],
         '/logout' => [AuthController::class, 'logout', [AuthMiddleware::class]],

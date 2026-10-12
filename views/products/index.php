@@ -202,11 +202,16 @@
                     VIEW <i class="fa-solid fa-arrow-right"></i>
                   </a>
                   <?php if ($item['is_available']): ?>
-                    <button class="btn-add-cart" onclick="addToCart('<?= e($item['name']) ?>', <?= (float)$item['price'] ?>)" style="padding: 6px 10px;">
-                      <i class="fa-solid fa-cart-plus"></i>
-                    </button>
+                    <form action="/cart/add" method="POST" style="margin: 0; display: inline;">
+                      <?= \App\Helpers\CSRF::field() ?>
+                      <input type="hidden" name="product_id" value="<?= (int)$item['id'] ?>">
+                      <input type="hidden" name="quantity" value="1">
+                      <button type="submit" class="btn-add-cart" style="padding: 6px 10px;" title="Add to Cart">
+                        <i class="fa-solid fa-cart-plus"></i>
+                      </button>
+                    </form>
                   <?php else: ?>
-                    <button class="btn-add-cart" disabled style="opacity: 0.4; cursor: not-allowed; padding: 6px 10px;">
+                    <button class="btn-add-cart" disabled style="opacity: 0.4; cursor: not-allowed; padding: 6px 10px;" title="Out of Stock">
                       <i class="fa-solid fa-ban"></i>
                     </button>
                   <?php endif; ?>
