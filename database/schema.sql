@@ -214,7 +214,11 @@ CREATE TABLE IF NOT EXISTS `delivery_rules` (
   `min_weight_kg` DECIMAL(8, 2) NOT NULL DEFAULT 0.00,
   `max_weight_kg` DECIMAL(8, 2) NOT NULL DEFAULT 50.00,
   `base_fee` DECIMAL(10, 2) NOT NULL DEFAULT 350.00,
+  `included_weight_kg` DECIMAL(8, 2) NOT NULL DEFAULT 1.00,
   `additional_kg_fee` DECIMAL(10, 2) NOT NULL DEFAULT 50.00,
+  `volumetric_divisor` INT NOT NULL DEFAULT 5000,
+  `handling_fee` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

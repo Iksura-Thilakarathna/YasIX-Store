@@ -77,7 +77,7 @@ INSERT INTO `product_reviews` (`id`, `product_id`, `user_id`, `rating`, `review_
 (3, 5, 2, 5, 'Quantum drone shipping arrived at my door in less than 4 hours. YasIX Store is officially the ultimate hardware marketplace.', 1);
 
 -- 7. Insert Delivery Rules
-INSERT INTO `delivery_rules` (`id`, `region_name`, `min_weight_kg`, `max_weight_kg`, `base_fee`, `additional_kg_fee`) VALUES
-(1, 'Western Province', 0.00, 5.00, 350.00, 50.00),
-(2, 'Outstation Central', 0.00, 5.00, 450.00, 75.00),
-(3, 'Express Drone Delivery', 0.00, 20.00, 950.00, 100.00);
+INSERT INTO `delivery_rules` (`id`, `region_name`, `min_weight_kg`, `max_weight_kg`, `base_fee`, `included_weight_kg`, `additional_kg_fee`, `volumetric_divisor`, `handling_fee`, `is_active`) VALUES
+(1, 'Western Province', 0.00, 50.00, 350.00, 1.00, 50.00, 5000, 0.00, 1),
+(2, 'Outstation Central', 0.00, 50.00, 450.00, 1.00, 75.00, 5000, 0.00, 1),
+(3, 'Express Drone Delivery', 0.00, 50.00, 950.00, 1.00, 100.00, 5000, 0.00, 1);
