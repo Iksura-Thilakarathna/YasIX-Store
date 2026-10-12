@@ -1546,4 +1546,16 @@ footer {
   padding-top: 10px;
 }
 
+/* CART & CHECKOUT RESPONSIVE LAYOUTS */
+@media (max-width: 900px) {
+  .cart-grid-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .checkout-grid-layout {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
 

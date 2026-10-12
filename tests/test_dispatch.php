@@ -70,3 +70,44 @@ if (str_contains($detailOutput, 'YasIX Neural Rig RTX 5090') && str_contains($de
     echo "[FAIL] /products/{slug} detail output missing expected elements.\n";
     exit(1);
 }
+
+// Test /cart GET dispatch (Authenticated Customer)
+\App\Helpers\Session::start();
+\App\Helpers\Session::set('user_id', 2);
+\App\Helpers\Session::set('role_id', 2);
+$_SERVER['REQUEST_METHOD'] = 'GET';
+$_SERVER['REQUEST_URI'] = '/cart';
+ob_start();
+require __DIR__ . '/../public/index.php';
+$cartOutput = ob_get_clean();
+
+if (str_contains($cartOutput, 'SHOPPING CART') && str_contains($cartOutput, 'DEPLOYMENT QUEUE')) {
+    echo "[PASS] Front Controller successfully rendered /cart view (" . strlen($cartOutput) . " bytes).\n";
+} else {
+    echo "[FAIL] /cart output missing expected elements.\n";
+    exit(1);
+}
+
+// Test /checkout GET dispatch with active cart item
+$cartRepo = new \App\Repositories\CartRepository();
+$cartId = $cartRepo->getOrCreateCart(2);
+$cartRepo->addItem($cartId, 2, 1);
+
+$_SERVER['REQUEST_METHOD'] = 'GET';
+$_SERVER['REQUEST_URI'] = '/checkout';
+ob_start();
+require __DIR__ . '/../public/index.php';
+$checkoutOutput = ob_get_clean();
+
+// Cleanup cart item
+$cartRepo->clearCart($cartId);
+
+
+if (str_contains($checkoutOutput, 'CHECKOUT TERMINAL') && str_contains($checkoutOutput, 'RECIPIENT INFORMATION')) {
+    echo "[PASS] Front Controller successfully rendered /checkout view (" . strlen($checkoutOutput) . " bytes).\n";
+} else {
+    echo "[FAIL] /checkout output missing expected elements.\n";
+    exit(1);
+}
+
+
