@@ -6,6 +6,7 @@ use App\Controllers\AuthController;
 use App\Controllers\AccountController;
 use App\Controllers\ProductController;
 use App\Controllers\CartController;
+use App\Controllers\CheckoutController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
 
@@ -17,6 +18,8 @@ return [
         '/products/{slug}' => [ProductController::class, 'detail'],
         '/product/{slug}' => [ProductController::class, 'detail'],
         '/cart' => [CartController::class, 'index', [AuthMiddleware::class]],
+        '/checkout' => [CheckoutController::class, 'index', [AuthMiddleware::class]],
+        '/checkout/success/{order_number}' => [CheckoutController::class, 'success', [AuthMiddleware::class]],
         '/login' => [AuthController::class, 'loginForm'],
         '/register' => [AuthController::class, 'registerForm'],
         '/account' => [AccountController::class, 'index', [AuthMiddleware::class]],
@@ -26,6 +29,7 @@ return [
         '/cart/update' => [CartController::class, 'update', [AuthMiddleware::class]],
         '/cart/remove' => [CartController::class, 'remove', [AuthMiddleware::class]],
         '/cart/clear' => [CartController::class, 'clear', [AuthMiddleware::class]],
+        '/checkout/place-order' => [CheckoutController::class, 'placeOrder', [AuthMiddleware::class]],
         '/login' => [AuthController::class, 'login'],
         '/register' => [AuthController::class, 'register'],
         '/logout' => [AuthController::class, 'logout', [AuthMiddleware::class]],
