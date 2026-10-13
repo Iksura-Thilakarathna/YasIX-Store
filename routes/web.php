@@ -8,6 +8,7 @@ use App\Controllers\ProductController;
 use App\Controllers\CartController;
 use App\Controllers\CheckoutController;
 use App\Controllers\OrderController;
+use App\Controllers\WarrantyController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
 
@@ -25,6 +26,12 @@ return [
         '/account/orders' => [OrderController::class, 'index', [AuthMiddleware::class]],
         '/orders/{order_number}' => [OrderController::class, 'detail', [AuthMiddleware::class]],
         '/orders/{order_number}/track' => [OrderController::class, 'track', [AuthMiddleware::class]],
+        '/warranties' => [WarrantyController::class, 'index', [AuthMiddleware::class]],
+        '/account/warranties' => [WarrantyController::class, 'index', [AuthMiddleware::class]],
+        '/warranties/claims' => [WarrantyController::class, 'claims', [AuthMiddleware::class]],
+        '/account/warranty-claims' => [WarrantyController::class, 'claims', [AuthMiddleware::class]],
+        '/warranties/claim/new/{order_item_id}' => [WarrantyController::class, 'createForm', [AuthMiddleware::class]],
+        '/warranties/claim/{claim_number}' => [WarrantyController::class, 'detail', [AuthMiddleware::class]],
         '/login' => [AuthController::class, 'loginForm'],
         '/register' => [AuthController::class, 'registerForm'],
         '/account' => [AccountController::class, 'index', [AuthMiddleware::class]],
@@ -36,6 +43,7 @@ return [
         '/cart/clear' => [CartController::class, 'clear', [AuthMiddleware::class]],
         '/checkout/place-order' => [CheckoutController::class, 'placeOrder', [AuthMiddleware::class]],
         '/orders/{order_number}/cancel' => [OrderController::class, 'cancel', [AuthMiddleware::class]],
+        '/warranties/claim' => [WarrantyController::class, 'submit', [AuthMiddleware::class]],
         '/login' => [AuthController::class, 'login'],
         '/register' => [AuthController::class, 'register'],
         '/logout' => [AuthController::class, 'logout', [AuthMiddleware::class]],
