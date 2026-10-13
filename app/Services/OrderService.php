@@ -286,4 +286,33 @@ class OrderService extends BaseService
             'icon' => 'fa-question'
         ];
     }
+
+    /**
+     * Cancel order with inventory stock restoration and audit history logging
+     */
+    public function cancelOrder(int $orderId, int $actorUserId, string $actorRole = 'CUSTOMER', ?string $reason = null): array
+    {
+        return $this->orderRepository->cancelOrderWithTransaction($orderId, $actorUserId, $actorRole, $reason);
+    }
+
+    /**
+     * Admin order status lifecycle update with audit history logging
+     */
+    public function updateOrderStatus(
+        int $orderId,
+        string $newStatus,
+        int $actorUserId,
+        string $actorRole = 'ADMIN',
+        ?string $reason = null,
+        ?string $newPaymentStatus = null
+    ): array {
+        return $this->orderRepository->updateOrderStatusWithTransaction(
+            $orderId,
+            $newStatus,
+            $actorUserId,
+            $actorRole,
+            $reason,
+            $newPaymentStatus
+        );
+    }
 }

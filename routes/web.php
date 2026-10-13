@@ -35,6 +35,7 @@ return [
         '/cart/remove' => [CartController::class, 'remove', [AuthMiddleware::class]],
         '/cart/clear' => [CartController::class, 'clear', [AuthMiddleware::class]],
         '/checkout/place-order' => [CheckoutController::class, 'placeOrder', [AuthMiddleware::class]],
+        '/orders/{order_number}/cancel' => [OrderController::class, 'cancel', [AuthMiddleware::class]],
         '/login' => [AuthController::class, 'login'],
         '/register' => [AuthController::class, 'register'],
         '/logout' => [AuthController::class, 'logout', [AuthMiddleware::class]],
