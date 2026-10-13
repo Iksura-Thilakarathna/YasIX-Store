@@ -33,6 +33,69 @@
     </div>
   <?php endif; ?>
 
+  <!-- QUICK ACCESS DISPATCH & WARRANTY PORTAL -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 30px;">
+    <!-- My Orders Card -->
+    <div class="account-card" style="padding: 22px; display: flex; flex-direction: column; justify-content: space-between; border-left: 3px solid var(--cyan);">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h3 style="font-family: 'Orbitron'; font-size: 1.05rem; color: var(--cyan); margin: 0;">
+            <i class="fa-solid fa-receipt"></i> MY ORDERS
+          </h3>
+          <span style="font-size: 0.75rem; color: var(--muted); font-family: 'Orbitron';">DISPATCH</span>
+        </div>
+        <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 18px;">
+          Track live courier delivery milestones, review historical price snapshots, and manage eligible early cancellations.
+        </p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <a href="/orders" class="btn-primary" style="flex: 1; justify-content: center; padding: 10px 16px; font-size: 0.85rem;">
+          VIEW ORDERS <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- My Warranties Card -->
+    <div class="account-card" style="padding: 22px; display: flex; flex-direction: column; justify-content: space-between; border-left: 3px solid #00ff88;">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h3 style="font-family: 'Orbitron'; font-size: 1.05rem; color: #00ff88; margin: 0;">
+            <i class="fa-solid fa-shield-halved"></i> MY WARRANTIES
+          </h3>
+          <span style="font-size: 0.75rem; color: var(--muted); font-family: 'Orbitron';">COVERAGE</span>
+        </div>
+        <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 18px;">
+          Inspect warranty duration snapshots (3–6 months), review delivery start dates, and submit RMA replacement claims.
+        </p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <a href="/warranties" class="btn-primary" style="flex: 1; justify-content: center; padding: 10px 16px; font-size: 0.85rem; background: rgba(0, 255, 136, 0.2); border-color: #00ff88; color: #00ff88;">
+          CHECK COVERAGE <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Warranty Claims Card -->
+    <div class="account-card" style="padding: 22px; display: flex; flex-direction: column; justify-content: space-between; border-left: 3px solid var(--violet);">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h3 style="font-family: 'Orbitron'; font-size: 1.05rem; color: #c084fc; margin: 0;">
+            <i class="fa-solid fa-list-check"></i> WARRANTY CLAIMS
+          </h3>
+          <span style="font-size: 0.75rem; color: var(--muted); font-family: 'Orbitron';">DIAGNOSTICS</span>
+        </div>
+        <p style="color: var(--muted); font-size: 0.88rem; line-height: 1.5; margin-bottom: 18px;">
+          Monitor diagnostic findings, technical resolutions, and replacement tracking for all submitted hardware claims.
+        </p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <a href="/warranties/claims" class="btn-secondary" style="flex: 1; justify-content: center; padding: 10px 16px; font-size: 0.85rem;">
+          VIEW CLAIMS <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <div class="account-grid">
     <!-- Left Column: User Credentials Overview -->
     <div class="account-card">

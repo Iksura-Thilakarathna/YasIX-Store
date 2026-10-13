@@ -39,6 +39,8 @@
         <li><a href="/#features">Features</a></li>
         <li><a href="/#reviews">Reviews</a></li>
         <?php if (\App\Helpers\Session::has('user_id')): ?>
+          <li><a href="/orders"><i class="fa-solid fa-receipt"></i> Orders</a></li>
+          <li><a href="/warranties"><i class="fa-solid fa-shield-halved"></i> Warranties</a></li>
           <li><a href="/account" class="btn-signup-link"><i class="fa-solid fa-user-gear"></i> <?= e(\App\Helpers\Session::get('user_name', 'Account')) ?></a></li>
           <li>
             <form action="/logout" method="POST" style="display:inline;">
