@@ -7,6 +7,7 @@ use App\Controllers\AccountController;
 use App\Controllers\ProductController;
 use App\Controllers\CartController;
 use App\Controllers\CheckoutController;
+use App\Controllers\OrderController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
 
@@ -20,6 +21,10 @@ return [
         '/cart' => [CartController::class, 'index', [AuthMiddleware::class]],
         '/checkout' => [CheckoutController::class, 'index', [AuthMiddleware::class]],
         '/checkout/success/{order_number}' => [CheckoutController::class, 'success', [AuthMiddleware::class]],
+        '/orders' => [OrderController::class, 'index', [AuthMiddleware::class]],
+        '/account/orders' => [OrderController::class, 'index', [AuthMiddleware::class]],
+        '/orders/{order_number}' => [OrderController::class, 'detail', [AuthMiddleware::class]],
+        '/orders/{order_number}/track' => [OrderController::class, 'track', [AuthMiddleware::class]],
         '/login' => [AuthController::class, 'loginForm'],
         '/register' => [AuthController::class, 'registerForm'],
         '/account' => [AccountController::class, 'index', [AuthMiddleware::class]],

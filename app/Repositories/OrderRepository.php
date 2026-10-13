@@ -81,10 +81,10 @@ class OrderRepository extends BaseRepository
             ]);
             $orderId = (int)$this->db->lastInsertId();
 
-            // 4. Insert Order Items (with historical price snapshot)
+            // 4. Insert Order Items (with historical price and warranty snapshot)
             $itemStmt = $this->db->prepare(
-                "INSERT INTO order_items (order_id, product_id, product_name, unit_price, quantity, subtotal, created_at)
-                 VALUES (:order_id, :product_id, :product_name, :unit_price, :quantity, :subtotal, NOW())"
+                "INSERT INTO order_items (order_id, product_id, product_name, unit_price, quantity, subtotal, warranty_months, created_at)
+                 VALUES (:order_id, :product_id, :product_name, :unit_price, :quantity, :subtotal, :warranty_months, NOW())"
             );
 
             foreach ($orderItems as $item) {
@@ -94,7 +94,8 @@ class OrderRepository extends BaseRepository
                     'product_name' => $item['product_name'],
                     'unit_price' => (float)$item['unit_price'],
                     'quantity' => (int)$item['quantity'],
-                    'subtotal' => (float)$item['subtotal']
+                    'subtotal' => (float)$item['subtotal'],
+                    'warranty_months' => (int)($item['warranty_months'] ?? 0)
                 ]);
             }
 
@@ -111,7 +112,18 @@ class OrderRepository extends BaseRepository
                 'transaction_reference' => $paymentData['transaction_reference'] ?? ('COD-' . $orderData['order_number'])
             ]);
 
-            // 6. Clear Cart Items
+            // 6. Record Initial Order Status in History
+            $historyStmt = $this->db->prepare(
+                "INSERT INTO order_status_history (order_id, previous_status, new_status, changed_by_user_id, actor_role, reason, created_at)
+                 VALUES (:order_id, NULL, :new_status, :changed_by_user_id, 'CUSTOMER', 'Order placed by customer via Cash on Delivery checkout', NOW())"
+            );
+            $historyStmt->execute([
+                'order_id' => $orderId,
+                'new_status' => $orderData['status'] ?? 'PENDING',
+                'changed_by_user_id' => $orderData['user_id']
+            ]);
+
+            // 7. Clear Cart Items
             if ($cartId > 0) {
                 $clearStmt = $this->db->prepare("DELETE FROM cart_items WHERE cart_id = :cart_id");
                 $clearStmt->execute(['cart_id' => $cartId]);
@@ -131,6 +143,59 @@ class OrderRepository extends BaseRepository
                 'message' => $e->getMessage()
             ];
         }
+    }
+
+    public function getUserOrders(int $userId, int $page = 1, int $limit = 10): array
+    {
+        $offset = max(0, ($page - 1) * $limit);
+
+        // Count total orders
+        $countStmt = $this->db->prepare("SELECT COUNT(*) FROM orders WHERE user_id = :user_id");
+        $countStmt->execute(['user_id' => $userId]);
+        $total = (int)$countStmt->fetchColumn();
+
+        // Fetch paginated orders with item count and summary
+        $sql = "SELECT o.*, 
+                       COUNT(oi.id) AS total_items,
+                       COALESCE(SUM(oi.quantity), 0) AS total_units,
+                       p.status AS payment_record_status
+                FROM orders o
+                LEFT JOIN order_items oi ON oi.order_id = o.id
+                LEFT JOIN payments p ON p.order_id = o.id
+                WHERE o.user_id = :user_id
+                GROUP BY o.id
+                ORDER BY o.created_at DESC, o.id DESC
+                LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $totalPages = $total > 0 ? (int)ceil($total / $limit) : 1;
+
+        return [
+            'orders' => $orders,
+            'total' => $total,
+            'page' => $page,
+            'limit' => $limit,
+            'total_pages' => $totalPages
+        ];
+    }
+
+    public function getOrderStatusHistory(int $orderId): array
+    {
+        $sql = "SELECT h.*, u.name AS actor_name
+                FROM order_status_history h
+                LEFT JOIN users u ON h.changed_by_user_id = u.id
+                WHERE h.order_id = :order_id
+                ORDER BY h.created_at ASC, h.id ASC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['order_id' => $orderId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getOrderWithDetails(string $orderNumber, int $userId): ?array
@@ -155,17 +220,20 @@ class OrderRepository extends BaseRepository
             return null;
         }
 
-        // Fetch Order Items
+        // Fetch Order Items (preserves historical snapshots)
         $itemsSql = "SELECT oi.*, p.slug AS product_slug, c.name AS category_name, c.icon_class AS category_icon
                      FROM order_items oi
-                     JOIN products p ON oi.product_id = p.id
-                     JOIN categories c ON p.category_id = c.id
+                     LEFT JOIN products p ON oi.product_id = p.id
+                     LEFT JOIN categories c ON p.category_id = c.id
                      WHERE oi.order_id = :order_id
                      ORDER BY oi.id ASC";
 
         $itemStmt = $this->db->prepare($itemsSql);
         $itemStmt->execute(['order_id' => $order['id']]);
         $order['items'] = $itemStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Fetch Status History
+        $order['history'] = $this->getOrderStatusHistory((int)$order['id']);
 
         return $order;
     }
