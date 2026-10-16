@@ -9,6 +9,7 @@ use App\Controllers\CartController;
 use App\Controllers\CheckoutController;
 use App\Controllers\OrderController;
 use App\Controllers\WarrantyController;
+use App\Controllers\AdminController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
 
@@ -35,6 +36,8 @@ return [
         '/login' => [AuthController::class, 'loginForm'],
         '/register' => [AuthController::class, 'registerForm'],
         '/account' => [AccountController::class, 'index', [AuthMiddleware::class]],
+        '/admin' => [AdminController::class, 'dashboard', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/login' => [AdminController::class, 'loginForm'],
     ],
     'POST' => [
         '/cart/add' => [CartController::class, 'add'],
@@ -49,5 +52,7 @@ return [
         '/logout' => [AuthController::class, 'logout', [AuthMiddleware::class]],
         '/account/profile' => [AccountController::class, 'updateProfile', [AuthMiddleware::class]],
         '/account/password' => [AccountController::class, 'changePassword', [AuthMiddleware::class]],
+        '/admin/login' => [AdminController::class, 'login'],
+        '/admin/logout' => [AdminController::class, 'logout', [RoleMiddleware::class => ['ADMIN']]],
     ]
 ];

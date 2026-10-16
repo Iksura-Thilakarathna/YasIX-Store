@@ -63,6 +63,10 @@ class AuthController extends BaseController
         Session::set('user_email', $user->email);
 
         Session::setFlash('success', "Welcome back to the Matrix, " . htmlspecialchars($user->name) . "!");
+        if (strtoupper($user->role_name ?? '') === 'ADMIN') {
+            header('Location: ' . getenv('APP_URL') . '/admin');
+            exit;
+        }
         header('Location: ' . getenv('APP_URL') . '/account');
         exit;
     }

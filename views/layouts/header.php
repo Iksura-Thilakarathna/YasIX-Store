@@ -39,6 +39,9 @@
         <li><a href="/#features">Features</a></li>
         <li><a href="/#reviews">Reviews</a></li>
         <?php if (\App\Helpers\Session::has('user_id')): ?>
+          <?php if (strtoupper(\App\Helpers\Session::get('role_name', '')) === 'ADMIN'): ?>
+            <li><a href="/admin" style="color: #ffb700; font-weight: 700;"><i class="fa-solid fa-gauge-high"></i> Admin</a></li>
+          <?php endif; ?>
           <li><a href="/orders"><i class="fa-solid fa-receipt"></i> Orders</a></li>
           <li><a href="/warranties"><i class="fa-solid fa-shield-halved"></i> Warranties</a></li>
           <li><a href="/account" class="btn-signup-link"><i class="fa-solid fa-user-gear"></i> <?= e(\App\Helpers\Session::get('user_name', 'Account')) ?></a></li>

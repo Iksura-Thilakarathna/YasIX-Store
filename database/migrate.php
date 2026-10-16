@@ -8,18 +8,17 @@ use App\Database\Connection;
 
 try {
     $pdo = Connection::getInstance();
-    $migrationFile = __DIR__ . '/migrations/2026_10_13_day5_order_warranty.sql';
+    $migrationsDir = __DIR__ . '/migrations';
+    $files = glob($migrationsDir . '/*.sql');
+    sort($files);
 
-    if (!file_exists($migrationFile)) {
-        throw new RuntimeException("Migration file not found: {$migrationFile}");
+    foreach ($files as $file) {
+        $filename = basename($file);
+        echo "[MIGRATE] Running {$filename}...\n";
+        $sql = file_get_contents($file);
+        $pdo->exec($sql);
+        echo "[SUCCESS] {$filename} executed successfully.\n";
     }
-
-    $sql = file_get_contents($migrationFile);
-    
-    // Execute SQL script
-    $pdo->exec($sql);
-
-    echo "[SUCCESS] Day 5 Migration executed successfully.\n";
 } catch (Throwable $e) {
     echo "[ERROR] Migration failed: " . $e->getMessage() . "\n";
     exit(1);

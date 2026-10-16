@@ -21,8 +21,11 @@ class View
             return;
         }
 
-        $layoutHeader = $viewsDir . 'layouts/header.php';
-        $layoutFooter = $viewsDir . 'layouts/footer.php';
+        $headerName = ($layout === 'main') ? 'header.php' : "{$layout}_header.php";
+        $footerName = ($layout === 'main') ? 'footer.php' : "{$layout}_footer.php";
+
+        $layoutHeader = $viewsDir . 'layouts/' . $headerName;
+        $layoutFooter = $viewsDir . 'layouts/' . $footerName;
 
         if (file_exists($layoutHeader)) {
             require $layoutHeader;
