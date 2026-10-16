@@ -148,7 +148,8 @@ class CheckoutService extends BaseService
                 'product_name' => $item['product_name'],
                 'unit_price' => $item['unit_price'],
                 'quantity' => $item['quantity'],
-                'subtotal' => $item['line_total']
+                'subtotal' => $item['line_total'],
+                'warranty_months' => (int)($item['warranty_months'] ?? 0)
             ];
         }
 

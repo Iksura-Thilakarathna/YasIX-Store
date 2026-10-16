@@ -28,39 +28,59 @@
   2. Local weight-based and volumetric delivery calculation system (`delivery_rules`).
   3. Transactional Cash on Delivery (COD) checkout with atomic inventory decrement (`orders`, `order_items`, `payments`).
   4. End-to-end security hardening, idempotency token validation, responsive layouts, and regression test suites.
+- **Day 5**: Order Management and Warranty Handling:
+  1. Authenticated customer order history (`/orders`), detailed historical specification receipts (`/orders/{order_number}`), and live courier tracking radar (`/orders/{order_number}/track`).
+  2. Order status lifecycle management (`order_status_history`), customer cancellation with atomic stock restoration, and Cash on Delivery payment decoupling.
+  3. Hardware warranty coverage registry (`/warranties`), delivery-based warranty calculation, and RMA technical claim handling (`/warranties/claims`).
+  4. End-to-end security hardening against IDOR, CSRF, and concurrent duplicate submissions with zero paid external APIs.
 
 ---
 
-## 🛒 Day 4 Key Features
+## 📦 Day 5 Key Features & Business Policies
 
-### 1. Persistent Database Shopping Cart
-- User-associated shopping cart persisted across sessions in `carts` and `cart_items`.
-- Real-time stock validation ensuring users cannot add more items than physical stock allows.
-- Automatic recalculation of line totals and cart subtotals.
-- Dedicated cyber-themed cart interface (`/cart`) with dynamic item cards, quantity modifiers, and removal actions.
+### 1. Customer Order History & Courier Tracking
+- **Order History Registry (`/orders`)**: Authenticated customer view with pagination, order date, hardware unit count, LKR currency formatting, payment method, payment status, and order status badge.
+- **Specification Receipts (`/orders/{order_number}`)**: Preserves historical snapshots of unit prices, line totals, delivery fee, and customer shipping address. Historical records remain unchanged if current catalog prices or profiles change.
+- **Courier Radar & Lifecycle Tracking (`/orders/{order_number}/track`)**: Displays sequential dispatch milestones:
+  $$\text{Pending Confirmation} \longrightarrow \text{Confirmed} \longrightarrow \text{Processing} \longrightarrow \text{Shipped} \longrightarrow \text{Out for Delivery} \longrightarrow \text{Delivered}$$
+  Along with terminal states (`CANCELLED`, `DELIVERY_FAILED`, `RETURNED`) and complete audit history logs.
+- **Strict Authorization**: Server strictly enforces `$order['user_id'] === $currentUserId` and returns 404/403 without leaking order existence across accounts.
 
-### 2. Local Delivery Fee Calculation (Zero External APIs)
-- Computes volumetric weight using industry standard logistics formula:
-  $$\text{Volumetric Weight (kg)} = \frac{\text{Length (cm)} \times \text{Width (cm)} \times \text{Height (cm)}}{5000}$$
-- Chargeable weight determined by $\max(\text{Actual Weight}, \text{Volumetric Weight})$, rounded up to the nearest 0.5 kg increment.
-- Configurable regional tiers in Sri Lanka (`delivery_rules`):
-  - **Western Province**: Base fee LKR 350.00 (up to 1.0 kg), LKR 50.00 per additional kg.
-  - **Outstation Central**: Base fee LKR 450.00 (up to 1.0 kg), LKR 75.00 per additional kg.
-  - **Northern & Eastern**: Base fee LKR 600.00 (up to 1.0 kg), LKR 100.00 per additional kg.
-- Courier threshold validation preventing oversized dispatches over max allowed weight.
-- Fixed 5–7 working days overseas shipping timeline estimate.
+### 2. Order Status Management & Controlled Cancellation
+- **Order Lifecycle vs. COD Payment**:
+  - COD orders remain in `PENDING` payment status upon creation and shipment.
+  - Payment is updated to `PAID` / `COMPLETED` only upon verified doorstep cash collection.
+  - Cancelled COD orders remain unpaid (`FAILED`), never marked refunded or paid.
+- **Customer Cancellation Rules**:
+  - Eligible only during early lifecycle phases: `PENDING` (Pending Confirmation) or `CONFIRMED`.
+  - Disallowed once warehouse fulfilment begins (`PROCESSING`, `SHIPPED`, `OUT_FOR_DELIVERY`, `DELIVERED`).
+- **Atomic Inventory Stock Restoration**:
+  - Uses InnoDB database transaction with row-level locks (`SELECT ... FOR UPDATE`).
+  - Restores decremented item stock only when eligible cancellation commits.
+  - Shields against duplicate cancellation and double stock restoration.
 
-### 3. Transactional Cash on Delivery Checkout
-- Requires customer authentication (`AuthMiddleware`) before checkout dispatch.
-- Atomic InnoDB database transaction:
-  1. Row-level stock locking using `SELECT ... FOR UPDATE`.
-  2. Stock decrement with safety check (`stock_quantity >= quantity`).
-  3. Snapshot recording of unit prices in `order_items` (preserving historical order values).
-  4. Generation of unique human-readable tracking number (`YAS-YYYYMMDD-XXXXX`).
-  5. Automatic creation of Cash on Delivery record in `payments` table with `PENDING` status.
-  6. Cart automatically cleared post-checkout.
-- Idempotency & duplicate submission shield using single-use `checkout_token`.
-- Cyber-themed order confirmation receipt page (`/checkout/success/{order_number}`) restricted to the purchasing customer.
+### 3. Warranty Coverage & Technical Claim Handling
+- **Warranty Commencement Date**: Begins strictly on actual recorded delivery date (`orders.delivered_at`), never at cart creation, order placement, or dispatch.
+- **Purchase-Time Warranty Duration Snapshot**: Preserves `warranty_months` (typically 3–6 months for electronics) in `order_items`. If product configuration changes later, historical warranty coverage remains untouched. Products with 0 months warranty are excluded.
+- **Expiry Boundary Policy**: Coverage is valid through 23:59:59 on the exact expiration date (`delivered_at + warranty_months months`). Expired warranties are blocked on the server.
+- **Claim Workflow (`/warranties/claims`)**:
+  - Eligible customers can submit claims with validated reason (`Product not functioning`, `Hardware defect`, `Battery issue`, etc.) and detailed telemetry description.
+  - Prevents duplicate active claims for the same hardware item.
+  - Claim lifecycle: $\text{SUBMITTED} \rightarrow \text{UNDER\_REVIEW} \rightarrow \text{APPROVED} / \text{REJECTED} \rightarrow \text{RESOLVED} \rightarrow \text{CLOSED}$.
+  - Admin authorization foundation for diagnostic findings and replacement resolutions; ordinary customers cannot approve their own claims.
+
+---
+
+## 🗄️ Database Migrations
+
+Apply the Day 5 database enhancements:
+
+```bash
+php database/migrate.php
+```
+
+Or execute SQL migration file:
+`database/migrations/2026_10_13_day5_order_warranty.sql`
 
 ---
 
@@ -90,8 +110,21 @@ php tests/verify_checkout.php
 # Day 4: Complete End-to-End Cart & Checkout Suite
 php tests/verify_day4_complete.php
 
+# Day 5: Customer Order History & Tracking Suite (Commit 1)
+php tests/verify_orders_tracking.php
+
+# Day 5: Order Status & Cancellation Suite (Commit 2)
+php tests/verify_order_cancellation.php
+
+# Day 5: Warranty Coverage & Claim Management Suite (Commit 3)
+php tests/verify_warranty.php
+
+# Day 5: Complete End-to-End Order & Warranty Suite (Commit 4)
+php tests/verify_day5_complete.php
+
 # Front Controller Route & View Dispatch Verification
 php tests/test_dispatch.php
 ```
 
 All suites execute cleanly with zero external dependencies or paid services.
+

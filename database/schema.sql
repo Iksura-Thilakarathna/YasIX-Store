@@ -140,9 +140,10 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `address_id` INT NULL,
   `total_amount` DECIMAL(10, 2) NOT NULL,
   `shipping_fee` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-  `status` ENUM('PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED') DEFAULT 'PENDING',
+  `status` ENUM('PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'CANCELLED', 'DELIVERY_FAILED', 'RETURNED') DEFAULT 'PENDING',
   `payment_method` VARCHAR(50) DEFAULT 'CASH_ON_DELIVERY',
   `payment_status` ENUM('PENDING', 'PAID', 'FAILED') DEFAULT 'PENDING',
+  `delivered_at` DATETIME NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT,
@@ -151,7 +152,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
   INDEX `idx_orders_status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 11. Order Items (Stores actual purchased price historically)
+-- 11. Order Items (Stores actual purchased price & warranty snapshot historically)
 CREATE TABLE IF NOT EXISTS `order_items` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `order_id` INT NOT NULL,
@@ -160,12 +161,28 @@ CREATE TABLE IF NOT EXISTS `order_items` (
   `unit_price` DECIMAL(10, 2) NOT NULL,
   `quantity` INT NOT NULL,
   `subtotal` DECIMAL(10, 2) NOT NULL,
+  `warranty_months` INT NOT NULL DEFAULT 0,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`order_id`) REFERENCES `orders`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 12. Payments
+-- 12. Order Status History (Audit Trail for Transitions)
+CREATE TABLE IF NOT EXISTS `order_status_history` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `order_id` INT NOT NULL,
+  `previous_status` VARCHAR(50) NULL,
+  `new_status` VARCHAR(50) NOT NULL,
+  `changed_by_user_id` INT NULL,
+  `actor_role` VARCHAR(50) DEFAULT 'CUSTOMER',
+  `reason` VARCHAR(255) NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`order_id`) REFERENCES `orders`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`changed_by_user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL,
+  INDEX `idx_status_history_order` (`order_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 13. Payments
 CREATE TABLE IF NOT EXISTS `payments` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `order_id` INT NOT NULL,
@@ -177,7 +194,7 @@ CREATE TABLE IF NOT EXISTS `payments` (
   FOREIGN KEY (`order_id`) REFERENCES `orders`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 13. Warranties
+-- 14. Warranties
 CREATE TABLE IF NOT EXISTS `warranties` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `order_item_id` INT NOT NULL,
@@ -193,21 +210,24 @@ CREATE TABLE IF NOT EXISTS `warranties` (
   FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 14. Warranty Claims
+-- 15. Warranty Claims
 CREATE TABLE IF NOT EXISTS `warranty_claims` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `warranty_id` INT NOT NULL,
   `user_id` INT NOT NULL,
   `claim_number` VARCHAR(50) NOT NULL UNIQUE,
+  `claim_reason` VARCHAR(100) NOT NULL DEFAULT 'Other',
   `issue_description` TEXT NOT NULL,
-  `status` ENUM('SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'RESOLVED') DEFAULT 'SUBMITTED',
+  `status` ENUM('SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'RESOLVED', 'CLOSED') DEFAULT 'SUBMITTED',
+  `admin_decision` VARCHAR(50) DEFAULT 'PENDING',
+  `resolution_details` TEXT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (`warranty_id`) REFERENCES `warranties`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 15. Delivery Rules
+-- 16. Delivery Rules
 CREATE TABLE IF NOT EXISTS `delivery_rules` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `region_name` VARCHAR(100) NOT NULL,
