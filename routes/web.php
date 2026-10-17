@@ -10,6 +10,9 @@ use App\Controllers\CheckoutController;
 use App\Controllers\OrderController;
 use App\Controllers\WarrantyController;
 use App\Controllers\AdminController;
+use App\Controllers\AdminProductController;
+use App\Controllers\AdminCategoryController;
+use App\Controllers\AdminInventoryController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
 
@@ -36,8 +39,15 @@ return [
         '/login' => [AuthController::class, 'loginForm'],
         '/register' => [AuthController::class, 'registerForm'],
         '/account' => [AccountController::class, 'index', [AuthMiddleware::class]],
+        
+        // Admin Core & Catalog Routes
         '/admin' => [AdminController::class, 'dashboard', [RoleMiddleware::class => ['ADMIN']]],
         '/admin/login' => [AdminController::class, 'loginForm'],
+        '/admin/products' => [AdminProductController::class, 'index', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/products/create' => [AdminProductController::class, 'create', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/products/{id}/edit' => [AdminProductController::class, 'edit', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/categories' => [AdminCategoryController::class, 'index', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/inventory' => [AdminInventoryController::class, 'index', [RoleMiddleware::class => ['ADMIN']]],
     ],
     'POST' => [
         '/cart/add' => [CartController::class, 'add'],
@@ -54,5 +64,15 @@ return [
         '/account/password' => [AccountController::class, 'changePassword', [AuthMiddleware::class]],
         '/admin/login' => [AdminController::class, 'login'],
         '/admin/logout' => [AdminController::class, 'logout', [RoleMiddleware::class => ['ADMIN']]],
+
+        // Admin Product, Category & Inventory POST actions
+        '/admin/products/create' => [AdminProductController::class, 'store', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/products/{id}/update' => [AdminProductController::class, 'update', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/products/{id}/toggle-status' => [AdminProductController::class, 'toggleStatus', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/categories/create' => [AdminCategoryController::class, 'store', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/categories/{id}/update' => [AdminCategoryController::class, 'update', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/categories/{id}/toggle-status' => [AdminCategoryController::class, 'toggleStatus', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/categories/{id}/delete' => [AdminCategoryController::class, 'delete', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/inventory/adjust' => [AdminInventoryController::class, 'adjust', [RoleMiddleware::class => ['ADMIN']]],
     ]
 ];
