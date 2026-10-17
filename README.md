@@ -33,6 +33,11 @@
   2. Order status lifecycle management (`order_status_history`), customer cancellation with atomic stock restoration, and Cash on Delivery payment decoupling.
   3. Hardware warranty coverage registry (`/warranties`), delivery-based warranty calculation, and RMA technical claim handling (`/warranties/claims`).
   4. End-to-end security hardening against IDOR, CSRF, and concurrent duplicate submissions with zero paid external APIs.
+- **Day 6**: Admin Dashboard and Management System:
+  1. Administrative authentication, dedicated admin portal layout, server-side `RoleMiddleware` with 403 Forbidden handling, and live aggregate analytics KPI cards.
+  2. Product and category administration (`/admin/products`, `/admin/categories`, `/admin/inventory`) with non-negative constraints, unique slug validation, safe file uploads, soft-deactivation (`INACTIVE`), atomic inventory adjustments, and `inventory_logs` audit trail.
+  3. Fulfilment order lifecycle terminal (`/admin/orders`), COD payment settlement ledger (`/admin/payments`), customer directory & status management (`/admin/customers`), and warranty claim adjudication (`/admin/warranties`) with confidential internal notes vs public resolutions.
+  4. Intelligence reports (`/admin/reports`), sanitized CSV data exports with formula injection defense (`=, +, -, @, \t, \r`), and comprehensive regression validation suites.
 
 ---
 
@@ -71,16 +76,68 @@
 
 ---
 
+## ⚡ Day 6 Key Features & Administration Architecture
+
+### 1. Administrative Authentication & Access Control
+- **Server-Side Role Protection**: All administrative endpoints (`/admin/*`) are protected by `RoleMiddleware` requiring `ADMIN` role from server session and database verification. Unauthenticated requests redirect to `/admin/login`; unauthorized customers receive a dedicated `403 Forbidden` terminal (`views/403.php`) without leaking administrative views or data.
+- **Secure Provisioning (Zero Hardcoded Passwords)**: Store administrators cannot be created via public customer registration. Use the secure CLI provisioning tool:
+  ```bash
+  php scripts/provision_admin.php "Super Admin" "admin@yasix.local" "YourSecurePassword"
+  ```
+- **Administrative Portal Layout**: Dedicated cyberpunk command hub layout (`views/layouts/admin_header.php`, `views/layouts/admin_footer.php`) featuring collapsible navigation, active route highlighting, system health status indicator, session pill, and breadcrumbs.
+
+### 2. Product, Category & Inventory Control
+- **SKU Administration (`/admin/products`)**: Filterable catalog table with live stock counters, brand/slug management, safe image uploading with MIME validation (`image/jpeg`, `image/png`, `image/webp`), and strict non-negative price/stock validation.
+- **Soft Deactivation (`INACTIVE`)**: Soft-deactivating a SKU immediately hides it from the customer storefront and search index while preserving historical order item references and historical receipts intact.
+- **Category Taxonomy (`/admin/categories`)**: Create and edit categories with slug validation, status toggle (`ACTIVE`/`INACTIVE`), and foreign-key protection that safely blocks deleting categories that contain active products.
+- **Inventory Matrix & Audit Trail (`/admin/inventory`)**: Inline stock adjustments with real-time recalculation, automated status transitions (`OUT_OF_STOCK` when quantity reaches 0), and immutable audit logs in `inventory_logs` recording previous stock, new stock, change quantity, admin user ID, timestamp, and audit justification.
+
+### 3. Fulfilment Lifecycle & Decoupled COD Settlement
+- **Order Fulfilment Terminal (`/admin/orders`, `/admin/orders/{order_number}`)**:
+  - Live order stream with multi-criteria filters (fulfilment stage, payment state, date range, customer search).
+  - Terminal view preserves historical purchase-time prices, line totals, delivery fee, and address snapshots.
+  - Forward-only state machine enforces lifecycle progression:
+    $$\text{PENDING} \longrightarrow \text{CONFIRMED} \longrightarrow \text{PROCESSING} \longrightarrow \text{SHIPPED} \longrightarrow \text{OUT\_FOR\_DELIVERY} \longrightarrow \text{DELIVERED}$$
+  - Terminal states (`CANCELLED`, `RETURNED`) are locked against unauthorized transitions.
+  - Full lifecycle audit trail logs every stage transition with previous status, new status, actor name, role, timestamp, and reason.
+- **COD Payment Decoupling (`/admin/payments`)**:
+  - Delivering an order does **not** automatically mark Cash on Delivery as collected.
+  - Courier cash remittance must be explicitly recorded and verified by an administrator via `/admin/orders/{order_number}/collect-payment` or the `/admin/payments` ledger.
+  - Updates `payments.status = 'COMPLETED'`, records `collected_at`, `collected_by_user_id`, and notes, and updates `orders.payment_status = 'PAID'`.
+  - Duplicate collection attempts on settled payments are strictly blocked.
+- **Order Cancellation Stock Restoration**:
+  - Cancelling an order via the admin terminal atomically restores product quantities in `products` and records an inventory audit log.
+
+### 4. Customer Directory & Privilege Shields
+- **Customer Dossier (`/admin/customers`, `/admin/customers/{id}`)**: Customer registry with search, status filters, lifetime metrics (total purchases, lifetime spend in LKR, RMA claims count), purchase history, and submitted warranty claims.
+- **Account Status Toggles (`ACTIVE` / `SUSPENDED`)**: Suspending a customer account immediately terminates access and blocks future logins (`UserService::login()` throws explicit account suspension error). Reactivating restores access immediately.
+- **Security Privilege Shields**:
+  - Administrators are strictly blocked from suspending their own active administrative session.
+  - Other administrator accounts cannot be modified or suspended through the customer management terminal.
+
+### 5. Warranty & RMA Adjudication
+- **Claims Terminal (`/admin/warranties`, `/admin/warranties/{id}`)**: Review customer defect claims against hardware manifests, recorded delivery dates, and coverage dates.
+- **Strict Adjudication Lifecycle**:
+  $$\text{SUBMITTED} \longrightarrow \text{UNDER\_REVIEW} \longrightarrow \text{APPROVED} / \text{REJECTED} \longrightarrow \text{RESOLVED} \longrightarrow \text{CLOSED}$$
+- **Confidential Internal Audit Notes**: Customer-facing decision summaries and resolution instructions are kept separate from confidential internal staff notes (`warranty_claims.internal_notes`), preserving staff discussions and supplier RMA codes private.
+
+### 6. Performance Reports & Safe CSV Export
+- **Intelligence Reports (`/admin/reports`)**: Period performance breakdown (Today, Last 7 Days, Last 30 Days, Year to Date, All Time, Custom Date Range) with delivered revenue, collected cash, gross pipeline value, order stage distribution, and top velocity hardware SKUs.
+- **CSV Formula Injection Defense**: All exported CSV files (Orders, Inventory, Payments, Warranties) neutralize spreadsheet command injection. Any cell starting with `=, +, -, @, \t, \r` is automatically prefixed with an apostrophe (`'`) and safely double-quote escaped.
+
+---
+
 ## 🗄️ Database Migrations
 
-Apply the Day 5 database enhancements:
+Apply database enhancements:
 
 ```bash
 php database/migrate.php
 ```
 
-Or execute SQL migration file:
-`database/migrations/2026_10_13_day5_order_warranty.sql`
+Includes:
+- `database/migrations/2026_10_13_day5_order_warranty.sql`
+- `database/migrations/2026_10_16_day6_admin_management.sql`
 
 ---
 
@@ -121,6 +178,18 @@ php tests/verify_warranty.php
 
 # Day 5: Complete End-to-End Order & Warranty Suite (Commit 4)
 php tests/verify_day5_complete.php
+
+# Day 6: Admin Authentication & Analytics Dashboard Suite (Commit 1)
+php tests/verify_admin_dashboard.php
+
+# Day 6: Product & Category Administration Suite (Commit 2)
+php tests/verify_admin_catalog.php
+
+# Day 6: Order, Customer & Warranty Administration Suite (Commit 3)
+php tests/verify_admin_management.php
+
+# Day 6: Complete End-to-End Admin Management & Security Suite (Commit 4)
+php tests/verify_day6_complete.php
 
 # Front Controller Route & View Dispatch Verification
 php tests/test_dispatch.php

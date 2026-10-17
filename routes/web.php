@@ -16,6 +16,7 @@ use App\Controllers\AdminInventoryController;
 use App\Controllers\AdminOrderController;
 use App\Controllers\AdminCustomerController;
 use App\Controllers\AdminWarrantyController;
+use App\Controllers\AdminReportController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
 
@@ -60,6 +61,10 @@ return [
         '/admin/customers/{id}' => [AdminCustomerController::class, 'detail', [RoleMiddleware::class => ['ADMIN']]],
         '/admin/warranties' => [AdminWarrantyController::class, 'index', [RoleMiddleware::class => ['ADMIN']]],
         '/admin/warranties/{id}' => [AdminWarrantyController::class, 'detail', [RoleMiddleware::class => ['ADMIN']]],
+
+        // Admin Reports & Export Routes
+        '/admin/reports' => [AdminReportController::class, 'index', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/reports/export' => [AdminReportController::class, 'export', [RoleMiddleware::class => ['ADMIN']]],
     ],
     'POST' => [
         '/cart/add' => [CartController::class, 'add'],
