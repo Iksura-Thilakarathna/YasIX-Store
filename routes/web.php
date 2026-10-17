@@ -13,6 +13,9 @@ use App\Controllers\AdminController;
 use App\Controllers\AdminProductController;
 use App\Controllers\AdminCategoryController;
 use App\Controllers\AdminInventoryController;
+use App\Controllers\AdminOrderController;
+use App\Controllers\AdminCustomerController;
+use App\Controllers\AdminWarrantyController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
 
@@ -48,6 +51,15 @@ return [
         '/admin/products/{id}/edit' => [AdminProductController::class, 'edit', [RoleMiddleware::class => ['ADMIN']]],
         '/admin/categories' => [AdminCategoryController::class, 'index', [RoleMiddleware::class => ['ADMIN']]],
         '/admin/inventory' => [AdminInventoryController::class, 'index', [RoleMiddleware::class => ['ADMIN']]],
+
+        // Admin Order, Payment, Customer & Warranty Routes
+        '/admin/orders' => [AdminOrderController::class, 'index', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/orders/{order_number}' => [AdminOrderController::class, 'detail', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/payments' => [AdminOrderController::class, 'payments', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/customers' => [AdminCustomerController::class, 'index', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/customers/{id}' => [AdminCustomerController::class, 'detail', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/warranties' => [AdminWarrantyController::class, 'index', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/warranties/{id}' => [AdminWarrantyController::class, 'detail', [RoleMiddleware::class => ['ADMIN']]],
     ],
     'POST' => [
         '/cart/add' => [CartController::class, 'add'],
@@ -74,5 +86,11 @@ return [
         '/admin/categories/{id}/toggle-status' => [AdminCategoryController::class, 'toggleStatus', [RoleMiddleware::class => ['ADMIN']]],
         '/admin/categories/{id}/delete' => [AdminCategoryController::class, 'delete', [RoleMiddleware::class => ['ADMIN']]],
         '/admin/inventory/adjust' => [AdminInventoryController::class, 'adjust', [RoleMiddleware::class => ['ADMIN']]],
+
+        // Admin Order, Payment, Customer & Warranty POST actions
+        '/admin/orders/{order_number}/status' => [AdminOrderController::class, 'updateStatus', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/orders/{order_number}/collect-payment' => [AdminOrderController::class, 'recordPayment', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/customers/{id}/toggle-status' => [AdminCustomerController::class, 'toggleStatus', [RoleMiddleware::class => ['ADMIN']]],
+        '/admin/warranties/{id}/decide' => [AdminWarrantyController::class, 'decide', [RoleMiddleware::class => ['ADMIN']]],
     ]
 ];

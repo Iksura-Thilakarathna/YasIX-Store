@@ -315,4 +315,86 @@ class OrderService extends BaseService
             $newPaymentStatus
         );
     }
+
+    public function getAdminOrders(array $params): array
+    {
+        $page = isset($params['page']) && is_numeric($params['page']) ? max(1, (int)$params['page']) : 1;
+        $perPage = 15;
+
+        $filters = [
+            'search' => trim($params['search'] ?? ''),
+            'order_status' => trim($params['order_status'] ?? ''),
+            'payment_status' => trim($params['payment_status'] ?? ''),
+            'date_from' => trim($params['date_from'] ?? ''),
+            'date_to' => trim($params['date_to'] ?? '')
+        ];
+
+        $total = $this->orderRepository->getAdminOrdersCount($filters);
+        $totalPages = (int)ceil($total / $perPage);
+        if ($totalPages > 0 && $page > $totalPages) {
+            $page = $totalPages;
+        }
+
+        $orders = $this->orderRepository->getAdminOrders($filters, $page, $perPage);
+
+        return [
+            'orders' => $orders,
+            'filters' => $filters,
+            'pagination' => [
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'total_orders' => $total,
+                'total_pages' => $totalPages,
+                'has_prev' => $page > 1,
+                'has_next' => $page < $totalPages
+            ]
+        ];
+    }
+
+    public function getAdminOrderById(int $orderId): ?array
+    {
+        return $this->orderRepository->getAdminOrderById($orderId);
+    }
+
+    public function getAdminOrderByNumber(string $orderNumber): ?array
+    {
+        return $this->orderRepository->getAdminOrderByNumber($orderNumber);
+    }
+
+    public function recordCodCollection(int $orderId, float $amount, int $adminUserId, ?string $notes = null): array
+    {
+        return $this->orderRepository->recordCodCollection($orderId, $amount, $adminUserId, $notes);
+    }
+
+    public function getAdminPayments(array $params): array
+    {
+        $page = isset($params['page']) && is_numeric($params['page']) ? max(1, (int)$params['page']) : 1;
+        $perPage = 15;
+
+        $filters = [
+            'search' => trim($params['search'] ?? ''),
+            'payment_status' => trim($params['payment_status'] ?? '')
+        ];
+
+        $total = $this->orderRepository->getAdminPaymentsCount($filters);
+        $totalPages = (int)ceil($total / $perPage);
+        if ($totalPages > 0 && $page > $totalPages) {
+            $page = $totalPages;
+        }
+
+        $payments = $this->orderRepository->getAdminPayments($filters, $page, $perPage);
+
+        return [
+            'payments' => $payments,
+            'filters' => $filters,
+            'pagination' => [
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'total_payments' => $total,
+                'total_pages' => $totalPages,
+                'has_prev' => $page > 1,
+                'has_next' => $page < $totalPages
+            ]
+        ];
+    }
 }
