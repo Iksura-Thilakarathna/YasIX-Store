@@ -245,16 +245,14 @@ class WarrantyService extends BaseService
         return $claim;
     }
 
-    /**
-     * Admin claim review decision foundation
-     */
     public function updateClaimStatus(
         int $claimId,
         string $status,
         int $adminUserId,
         string $adminRole = 'ADMIN',
         ?string $decision = null,
-        ?string $resolution = null
+        ?string $resolution = null,
+        ?string $internalNotes = null
     ): array {
         return $this->warrantyRepository->updateClaimStatusWithTransaction(
             $claimId,
@@ -262,8 +260,57 @@ class WarrantyService extends BaseService
             $adminUserId,
             $adminRole,
             $decision,
-            $resolution
+            $resolution,
+            $internalNotes
         );
+    }
+
+    public function getAdminClaims(array $params): array
+    {
+        $page = isset($params['page']) && is_numeric($params['page']) ? max(1, (int)$params['page']) : 1;
+        $perPage = 15;
+
+        $filters = [
+            'status' => trim($params['status'] ?? ''),
+            'search' => trim($params['search'] ?? ''),
+            'date_from' => trim($params['date_from'] ?? ''),
+            'date_to' => trim($params['date_to'] ?? '')
+        ];
+
+        $total = $this->warrantyRepository->getAdminClaimsCount($filters);
+        $totalPages = (int)ceil($total / $perPage);
+        if ($totalPages > 0 && $page > $totalPages) {
+            $page = $totalPages;
+        }
+
+        $claims = $this->warrantyRepository->getAdminClaims($filters, $page, $perPage);
+        foreach ($claims as &$claim) {
+            $claim['status_meta'] = $this->getClaimStatusMetadata($claim['status']);
+        }
+        unset($claim);
+
+        return [
+            'claims' => $claims,
+            'filters' => $filters,
+            'pagination' => [
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'total_claims' => $total,
+                'total_pages' => $totalPages,
+                'has_prev' => $page > 1,
+                'has_next' => $page < $totalPages
+            ]
+        ];
+    }
+
+    public function getAdminClaimById(int $claimId): ?array
+    {
+        $claim = $this->warrantyRepository->getAdminClaimById($claimId);
+        if (!$claim) {
+            return null;
+        }
+        $claim['status_meta'] = $this->getClaimStatusMetadata($claim['status']);
+        return $claim;
     }
 
     /**

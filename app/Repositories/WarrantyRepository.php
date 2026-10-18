@@ -209,7 +209,8 @@ class WarrantyRepository extends BaseRepository
         int $adminUserId,
         string $adminRole,
         ?string $adminDecision = null,
-        ?string $resolutionDetails = null
+        ?string $resolutionDetails = null,
+        ?string $internalNotes = null
     ): array {
         if ($adminRole !== 'ADMIN') {
             return [
@@ -237,10 +238,31 @@ class WarrantyRepository extends BaseRepository
                 throw new Exception("Warranty claim not found.");
             }
 
+            // Check valid transition from current status
+            $currentStatus = $claim['status'];
+            $allowedTransitions = [
+                'SUBMITTED' => ['UNDER_REVIEW', 'APPROVED', 'REJECTED'],
+                'UNDER_REVIEW' => ['APPROVED', 'REJECTED'],
+                'APPROVED' => ['RESOLVED', 'CLOSED'],
+                'REJECTED' => ['UNDER_REVIEW'], // Admin can reopen for re-evaluation
+                'RESOLVED' => ['CLOSED'],
+                'CLOSED' => []
+            ];
+
+            if ($currentStatus !== $newStatus && isset($allowedTransitions[$currentStatus]) && !in_array($newStatus, $allowedTransitions[$currentStatus], true)) {
+                throw new Exception("Invalid transition from '{$currentStatus}' to '{$newStatus}'.");
+            }
+
+            $isResolved = in_array($newStatus, ['RESOLVED', 'CLOSED'], true);
+            $resolvedSql = $isResolved ? ', resolved_at = COALESCE(resolved_at, NOW())' : '';
+
             $updateSql = "UPDATE warranty_claims 
                           SET status = :status, 
                               admin_decision = :decision, 
-                              resolution_details = :details, 
+                              resolution_details = :details,
+                              internal_notes = :notes,
+                              reviewed_by_user_id = :admin_id
+                              {$resolvedSql},
                               updated_at = NOW() 
                           WHERE id = :id";
             $updateStmt = $this->db->prepare($updateSql);
@@ -248,6 +270,8 @@ class WarrantyRepository extends BaseRepository
                 'status' => $newStatus,
                 'decision' => $adminDecision ?? $newStatus,
                 'details' => $resolutionDetails,
+                'notes' => $internalNotes,
+                'admin_id' => $adminUserId,
                 'id' => $claimId
             ]);
 
@@ -276,5 +300,109 @@ class WarrantyRepository extends BaseRepository
                 'message' => $e->getMessage()
             ];
         }
+    }
+
+    public function getAdminClaims(array $filters, int $page = 1, int $perPage = 15): array
+    {
+        [$whereClause, $params] = $this->buildAdminClaimFilterQuery($filters);
+
+        $offset = max(0, ($page - 1) * $perPage);
+        $sql = "SELECT wc.*, 
+                       w.serial_number, w.start_date, w.end_date,
+                       oi.product_name, oi.unit_price, oi.warranty_months,
+                       o.order_number, o.delivered_at,
+                       u.name AS customer_name, u.email AS customer_email,
+                       u_rev.name AS reviewer_name
+                FROM warranty_claims wc
+                JOIN warranties w ON wc.warranty_id = w.id
+                JOIN order_items oi ON w.order_item_id = oi.id
+                JOIN orders o ON oi.order_id = o.id
+                JOIN users u ON wc.user_id = u.id
+                LEFT JOIN users u_rev ON wc.reviewed_by_user_id = u_rev.id
+                {$whereClause}
+                ORDER BY wc.created_at DESC
+                LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $k => $v) {
+            $stmt->bindValue(":{$k}", $v);
+        }
+        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAdminClaimsCount(array $filters): int
+    {
+        [$whereClause, $params] = $this->buildAdminClaimFilterQuery($filters);
+        $sql = "SELECT COUNT(*) 
+                FROM warranty_claims wc
+                JOIN warranties w ON wc.warranty_id = w.id
+                JOIN order_items oi ON w.order_item_id = oi.id
+                JOIN orders o ON oi.order_id = o.id
+                JOIN users u ON wc.user_id = u.id
+                {$whereClause}";
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $k => $v) {
+            $stmt->bindValue(":{$k}", $v);
+        }
+        $stmt->execute();
+        return (int)$stmt->fetchColumn();
+    }
+
+    private function buildAdminClaimFilterQuery(array $filters): array
+    {
+        $conditions = ["1=1"];
+        $params = [];
+
+        if (!empty($filters['status'])) {
+            $conditions[] = "wc.status = :status";
+            $params['status'] = strtoupper(trim($filters['status']));
+        }
+
+        if (!empty($filters['search'])) {
+            $s = '%' . trim($filters['search']) . '%';
+            $conditions[] = "(wc.claim_number LIKE :s1 OR o.order_number LIKE :s2 OR u.name LIKE :s3 OR oi.product_name LIKE :s4)";
+            $params['s1'] = $s;
+            $params['s2'] = $s;
+            $params['s3'] = $s;
+            $params['s4'] = $s;
+        }
+
+        if (!empty($filters['date_from'])) {
+            $conditions[] = "wc.created_at >= :date_from";
+            $params['date_from'] = trim($filters['date_from']) . ' 00:00:00';
+        }
+
+        if (!empty($filters['date_to'])) {
+            $conditions[] = "wc.created_at <= :date_to";
+            $params['date_to'] = trim($filters['date_to']) . ' 23:59:59';
+        }
+
+        return ["WHERE " . implode(" AND ", $conditions), $params];
+    }
+
+    public function getAdminClaimById(int $claimId): ?array
+    {
+        $sql = "SELECT wc.*, 
+                       w.serial_number, w.start_date, w.end_date, w.status AS warranty_status,
+                       oi.id AS order_item_id, oi.product_name, oi.unit_price, oi.warranty_months,
+                       o.id AS order_id, o.order_number, o.delivered_at, o.user_id AS order_user_id,
+                       u.name AS customer_name, u.email AS customer_email, u.phone AS customer_phone,
+                       u_rev.name AS reviewer_name
+                FROM warranty_claims wc
+                JOIN warranties w ON wc.warranty_id = w.id
+                JOIN order_items oi ON w.order_item_id = oi.id
+                JOIN orders o ON oi.order_id = o.id
+                JOIN users u ON wc.user_id = u.id
+                LEFT JOIN users u_rev ON wc.reviewed_by_user_id = u_rev.id
+                WHERE wc.id = :id
+                LIMIT 1";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $claimId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ?: null;
     }
 }

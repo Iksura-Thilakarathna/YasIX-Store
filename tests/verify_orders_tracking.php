@@ -43,10 +43,15 @@ $productRepo = new ProductRepository();
 $adminId = 1;
 $customerId = 2;
 
-// Clean up any test orders previously created for user 999
-$db->exec("DELETE FROM users WHERE email = 'empty_orders@yasix.local'");
-$db->exec("INSERT INTO users (id, role_id, name, email, password_hash, phone, status) VALUES (999, 2, 'No Order User', 'empty_orders@yasix.local', 'hash', '+94770009999', 'ACTIVE')");
-$noOrderUserId = 999;
+// Clean up or find test customer with no orders
+$emptyUserStmt = $db->query("SELECT id FROM users WHERE email = 'empty_orders@yasix.local'");
+$existingEmptyUser = $emptyUserStmt->fetchColumn();
+if (!$existingEmptyUser) {
+    $db->exec("INSERT INTO users (role_id, name, email, password_hash, phone, status) VALUES (2, 'No Order User', 'empty_orders@yasix.local', 'hash', '+94770009999', 'ACTIVE')");
+    $noOrderUserId = (int)$db->lastInsertId();
+} else {
+    $noOrderUserId = (int)$existingEmptyUser;
+}
 
 // 1. Customer with no orders
 echo "\n--- [1] EMPTY STATE VERIFICATION ---\n";

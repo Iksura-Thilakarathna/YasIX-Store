@@ -401,6 +401,21 @@ class OrderRepository extends BaseRepository
             // Update delivered_at if transitioning to DELIVERED
             $deliveredAtSql = ($newStatus === 'DELIVERED') ? ', delivered_at = NOW()' : '';
 
+            // If transitioning to CANCELLED, restore product stock
+            if ($newStatus === 'CANCELLED') {
+                $itemsStmt = $this->db->prepare("SELECT product_id, quantity FROM order_items WHERE order_id = :order_id");
+                $itemsStmt->execute(['order_id' => $orderId]);
+                $items = $itemsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+                $stockStmt = $this->db->prepare("UPDATE products SET stock_quantity = stock_quantity + :qty WHERE id = :id");
+                foreach ($items as $item) {
+                    $stockStmt->execute([
+                        'qty' => (int)$item['quantity'],
+                        'id' => (int)$item['product_id']
+                    ]);
+                }
+            }
+
             // Update order status
             $updateSql = "UPDATE orders SET status = :status {$deliveredAtSql}, updated_at = NOW() WHERE id = :id";
             $updateStmt = $this->db->prepare($updateSql);
@@ -448,5 +463,264 @@ class OrderRepository extends BaseRepository
                 'message' => $e->getMessage()
             ];
         }
+    }
+
+    public function getAdminOrders(array $filters, int $page = 1, int $perPage = 15): array
+    {
+        [$whereClause, $params] = $this->buildAdminOrderFilterQuery($filters);
+
+        $offset = max(0, ($page - 1) * $perPage);
+        $sql = "SELECT o.*, u.name AS customer_name, u.email AS customer_email, u.phone AS customer_phone,
+                       p.status AS payment_record_status, p.amount AS payment_amount
+                FROM orders o
+                JOIN users u ON o.user_id = u.id
+                LEFT JOIN payments p ON o.id = p.order_id
+                {$whereClause}
+                ORDER BY o.created_at DESC
+                LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $k => $v) {
+            $stmt->bindValue(":{$k}", $v);
+        }
+        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAdminOrdersCount(array $filters): int
+    {
+        [$whereClause, $params] = $this->buildAdminOrderFilterQuery($filters);
+        $sql = "SELECT COUNT(*) FROM orders o JOIN users u ON o.user_id = u.id LEFT JOIN payments p ON o.id = p.order_id {$whereClause}";
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $k => $v) {
+            $stmt->bindValue(":{$k}", $v);
+        }
+        $stmt->execute();
+        return (int)$stmt->fetchColumn();
+    }
+
+    private function buildAdminOrderFilterQuery(array $filters): array
+    {
+        $conditions = ["1=1"];
+        $params = [];
+
+        if (!empty($filters['search'])) {
+            $s = '%' . trim($filters['search']) . '%';
+            $conditions[] = "(o.order_number LIKE :s1 OR u.name LIKE :s2 OR u.email LIKE :s3 OR u.phone LIKE :s4)";
+            $params['s1'] = $s;
+            $params['s2'] = $s;
+            $params['s3'] = $s;
+            $params['s4'] = $s;
+        }
+
+        if (!empty($filters['order_status'])) {
+            $conditions[] = "o.status = :order_status";
+            $params['order_status'] = strtoupper(trim($filters['order_status']));
+        }
+
+        if (!empty($filters['payment_status'])) {
+            $conditions[] = "o.payment_status = :payment_status";
+            $params['payment_status'] = strtoupper(trim($filters['payment_status']));
+        }
+
+        if (!empty($filters['date_from'])) {
+            $conditions[] = "o.created_at >= :date_from";
+            $params['date_from'] = trim($filters['date_from']) . ' 00:00:00';
+        }
+
+        if (!empty($filters['date_to'])) {
+            $conditions[] = "o.created_at <= :date_to";
+            $params['date_to'] = trim($filters['date_to']) . ' 23:59:59';
+        }
+
+        return ["WHERE " . implode(" AND ", $conditions), $params];
+    }
+
+    public function getOrderItems(int $orderId): array
+    {
+        $sql = "SELECT oi.*, p.slug AS product_slug, c.name AS category_name, c.icon_class AS category_icon
+                FROM order_items oi
+                LEFT JOIN products p ON oi.product_id = p.id
+                LEFT JOIN categories c ON p.category_id = c.id
+                WHERE oi.order_id = :order_id
+                ORDER BY oi.id ASC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['order_id' => $orderId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAdminOrderById(int $orderId): ?array
+    {
+        $sql = "SELECT o.*, u.name AS customer_name, u.email AS customer_email, u.phone AS customer_phone,
+                       a.address_line1, a.address_line2, a.city, a.state, a.postal_code, a.country,
+                       p.id AS payment_id, p.amount AS payment_amount, p.status AS payment_record_status,
+                       p.collected_at, p.notes AS payment_notes, u_col.name AS collected_by_admin
+                FROM orders o
+                JOIN users u ON o.user_id = u.id
+                LEFT JOIN addresses a ON o.address_id = a.id
+                LEFT JOIN payments p ON o.id = p.order_id
+                LEFT JOIN users u_col ON p.collected_by_user_id = u_col.id
+                WHERE o.id = :id LIMIT 1";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $orderId]);
+        $order = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$order) {
+            return null;
+        }
+
+        $order['items'] = $this->getOrderItems($orderId);
+        $order['status_history'] = $this->getOrderStatusHistory($orderId);
+        return $order;
+    }
+
+    public function getAdminOrderByNumber(string $orderNumber): ?array
+    {
+        $stmt = $this->db->prepare("SELECT id FROM orders WHERE order_number = :num LIMIT 1");
+        $stmt->execute(['num' => trim($orderNumber)]);
+        $id = $stmt->fetchColumn();
+        return $id ? $this->getAdminOrderById((int)$id) : null;
+    }
+
+    public function recordCodCollection(int $orderId, float $amountCollected, int $adminUserId, ?string $notes = null): array
+    {
+        $this->db->beginTransaction();
+        try {
+            // Lock payment and order row
+            $stmt = $this->db->prepare("SELECT id, amount, status FROM payments WHERE order_id = :order_id FOR UPDATE");
+            $stmt->execute(['order_id' => $orderId]);
+            $payment = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$payment) {
+                throw new \Exception("Payment record not found for Order #{$orderId}.");
+            }
+
+            if ($payment['status'] === 'COMPLETED') {
+                throw new \Exception("Payment for this order has already been recorded as COMPLETED.");
+            }
+
+            $orderStmt = $this->db->prepare("SELECT id, order_number, total_amount, status FROM orders WHERE id = :id FOR UPDATE");
+            $orderStmt->execute(['id' => $orderId]);
+            $order = $orderStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$order) {
+                throw new \Exception("Order #{$orderId} not found.");
+            }
+
+            if ($amountCollected <= 0) {
+                throw new \Exception("Collected amount must be greater than zero.");
+            }
+
+            if ($amountCollected > (float)$payment['amount']) {
+                throw new \Exception("Collected amount (LKR {$amountCollected}) cannot exceed the due balance (LKR {$payment['amount']}).");
+            }
+
+            // Update payment record
+            $updatePayStmt = $this->db->prepare("
+                UPDATE payments 
+                SET status = 'COMPLETED',
+                    collected_at = NOW(),
+                    collected_by_user_id = :admin_id,
+                    notes = :notes
+                WHERE id = :id
+            ");
+            $updatePayStmt->execute([
+                'admin_id' => $adminUserId,
+                'notes' => trim($notes ?? 'COD cash collected and verified by administrator'),
+                'id' => $payment['id']
+            ]);
+
+            // Update order payment status
+            $updateOrderStmt = $this->db->prepare("UPDATE orders SET payment_status = 'PAID', updated_at = NOW() WHERE id = :id");
+            $updateOrderStmt->execute(['id' => $orderId]);
+
+            // Add status history entry
+            $histStmt = $this->db->prepare("
+                INSERT INTO order_status_history (order_id, previous_status, new_status, changed_by_user_id, actor_role, reason, created_at)
+                VALUES (:order_id, :prev_status, :new_status, :admin_id, 'ADMIN', :reason, NOW())
+            ");
+            $histStmt->execute([
+                'order_id' => $orderId,
+                'prev_status' => $order['status'],
+                'new_status' => $order['status'],
+                'admin_id' => $adminUserId,
+                'reason' => "COD payment of LKR " . number_format($amountCollected, 2) . " collected and verified."
+            ]);
+
+            $this->db->commit();
+
+            return [
+                'success' => true,
+                'order_id' => $orderId,
+                'amount_collected' => $amountCollected
+            ];
+        } catch (\Throwable $e) {
+            $this->db->rollBack();
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+
+    public function getAdminPayments(array $filters, int $page = 1, int $perPage = 15): array
+    {
+        [$whereClause, $params] = $this->buildAdminPaymentFilterQuery($filters);
+
+        $offset = max(0, ($page - 1) * $perPage);
+        $sql = "SELECT p.*, o.order_number, o.status AS order_status, o.total_amount AS order_total,
+                       u.name AS customer_name, u_col.name AS collected_by_admin
+                FROM payments p
+                JOIN orders o ON p.order_id = o.id
+                JOIN users u ON o.user_id = u.id
+                LEFT JOIN users u_col ON p.collected_by_user_id = u_col.id
+                {$whereClause}
+                ORDER BY p.id DESC
+                LIMIT :limit OFFSET :offset";
+
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $k => $v) {
+            $stmt->bindValue(":{$k}", $v);
+        }
+        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAdminPaymentsCount(array $filters): int
+    {
+        [$whereClause, $params] = $this->buildAdminPaymentFilterQuery($filters);
+        $sql = "SELECT COUNT(*) FROM payments p JOIN orders o ON p.order_id = o.id JOIN users u ON o.user_id = u.id {$whereClause}";
+        $stmt = $this->db->prepare($sql);
+        foreach ($params as $k => $v) {
+            $stmt->bindValue(":{$k}", $v);
+        }
+        $stmt->execute();
+        return (int)$stmt->fetchColumn();
+    }
+
+    private function buildAdminPaymentFilterQuery(array $filters): array
+    {
+        $conditions = ["1=1"];
+        $params = [];
+
+        if (!empty($filters['search'])) {
+            $s = '%' . trim($filters['search']) . '%';
+            $conditions[] = "(o.order_number LIKE :s1 OR u.name LIKE :s2)";
+            $params['s1'] = $s;
+            $params['s2'] = $s;
+        }
+
+        if (!empty($filters['payment_status'])) {
+            $conditions[] = "p.status = :status";
+            $params['status'] = strtoupper(trim($filters['payment_status']));
+        }
+
+        return ["WHERE " . implode(" AND ", $conditions), $params];
     }
 }

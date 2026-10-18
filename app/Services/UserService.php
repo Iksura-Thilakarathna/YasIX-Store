@@ -174,4 +174,77 @@ class UserService extends BaseService
             'errors' => $success ? [] : ['password' => ['Failed to update password.']]
         ];
     }
+
+    public function getAdminCustomers(array $params): array
+    {
+        $page = isset($params['page']) && is_numeric($params['page']) ? max(1, (int)$params['page']) : 1;
+        $perPage = 15;
+
+        $filters = [
+            'search' => trim($params['search'] ?? ''),
+            'status' => trim($params['status'] ?? ''),
+            'role' => trim($params['role'] ?? 'CUSTOMER')
+        ];
+
+        $total = $this->userRepository->getAdminCustomersCount($filters);
+        $totalPages = (int)ceil($total / $perPage);
+        if ($totalPages > 0 && $page > $totalPages) {
+            $page = $totalPages;
+        }
+
+        $customers = $this->userRepository->getAdminCustomers($filters, $page, $perPage);
+
+        return [
+            'customers' => $customers,
+            'filters' => $filters,
+            'pagination' => [
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'total_customers' => $total,
+                'total_pages' => $totalPages,
+                'has_prev' => $page > 1,
+                'has_next' => $page < $totalPages
+            ]
+        ];
+    }
+
+    public function getCustomerDetails(int $userId): ?array
+    {
+        return $this->userRepository->getCustomerDetails($userId);
+    }
+
+    public function setCustomerStatus(int $targetUserId, string $newStatus, int $adminUserId): array
+    {
+        if ($targetUserId === $adminUserId) {
+            return [
+                'success' => false,
+                'error' => 'Security Violation: Administrators are strictly prohibited from suspending their own administrative credentials.'
+            ];
+        }
+
+        $targetUser = $this->userRepository->findById($targetUserId);
+        if (!$targetUser) {
+            return [
+                'success' => false,
+                'error' => 'User account not found.'
+            ];
+        }
+
+        if (strtoupper($targetUser['role_name'] ?? '') === 'ADMIN') {
+            return [
+                'success' => false,
+                'error' => 'Security Policy: Administrator accounts cannot be modified or suspended through the customer management terminal.'
+            ];
+        }
+
+        $validStatuses = ['ACTIVE', 'SUSPENDED', 'INACTIVE'];
+        $cleanStatus = in_array(strtoupper($newStatus), $validStatuses, true) ? strtoupper($newStatus) : 'ACTIVE';
+
+        $this->userRepository->updateCustomerStatus($targetUserId, $cleanStatus);
+
+        return [
+            'success' => true,
+            'status' => $cleanStatus
+        ];
+    }
 }
