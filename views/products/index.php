@@ -65,7 +65,7 @@
 
           <!-- Price Range -->
           <div class="form-group">
-            <label class="form-label"><i class="fa-solid fa-tags"></i> PRICE RANGE ($)</label>
+            <label class="form-label"><i class="fa-solid fa-tags"></i> PRICE RANGE (LKR)</label>
             <div style="display: flex; gap: 10px;">
               <input 
                 type="number" 

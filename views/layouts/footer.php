@@ -1,23 +1,5 @@
   </main>
 
-  <!-- CART DRAWER -->
-  <div class="cart-drawer" id="cart-drawer">
-    <div class="cart-header">
-      <h3 style="font-family: 'Orbitron'; color: var(--cyan);">YOUR CART GEAR</h3>
-      <button class="modal-close" id="close-cart-btn"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="cart-items" id="cart-items-list">
-      <!-- Added dynamically -->
-    </div>
-    <div style="border-top: 1px solid var(--border); padding-top: 16px;">
-      <div style="display: flex; justify-content: space-between; font-family: 'Orbitron'; margin-bottom: 16px;">
-        <span>TOTAL:</span>
-        <span id="cart-total-price" style="color: var(--cyan);">$3,047.00</span>
-      </div>
-      <button class="btn-primary" style="width: 100%; justify-content: center;" onclick="alert('Proceeding to Cyber Quantum Checkout!')">CHECKOUT NOW <i class="fa-solid fa-lock"></i></button>
-    </div>
-  </div>
-
   <!-- FOOTER -->
   <footer>
     <div class="container">
@@ -32,20 +14,20 @@
         <div class="footer-col">
           <h4>NAVIGATION</h4>
           <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#store">Catalog</a></li>
-            <li><a href="#deals">Flash Sales</a></li>
-            <li><a href="#features">Features</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="/products">Store Catalog</a></li>
+            <li><a href="/#deals">Flash Sales</a></li>
+            <li><a href="/#features">Features</a></li>
           </ul>
         </div>
 
         <div class="footer-col">
           <h4>SUPPORT</h4>
           <ul>
-            <li><a href="#">Neural AI Bot</a></li>
-            <li><a href="#">Warranty Claim</a></li>
-            <li><a href="#">Order Tracking</a></li>
-            <li><a href="#">Matrix Status</a></li>
+            <li><a href="/orders">Order Tracking</a></li>
+            <li><a href="/warranties">Warranty Claims</a></li>
+            <li><a href="/account">Customer Account</a></li>
+            <li><a href="/admin">Admin Portal</a></li>
           </ul>
         </div>
 
@@ -144,58 +126,6 @@
       }
     }, 1000);
 
-    // Cart System
-    const cartItems = [
-      { name: 'YasIX Synapse Headset', price: 399 },
-      { name: 'RTX 5090 Cyber-Quantum', price: 2299 },
-      { name: 'AeroBlade Cyber Keyboard', price: 349 }
-    ];
-
-    const cartDrawer = document.getElementById('cart-drawer');
-    const openCartBtn = document.getElementById('open-cart-btn');
-    const closeCartBtn = document.getElementById('close-cart-btn');
-    const cartItemsList = document.getElementById('cart-items-list');
-    const cartCountEl = document.getElementById('cart-count');
-    const cartTotalEl = document.getElementById('cart-total-price');
-
-    if (openCartBtn && closeCartBtn && cartDrawer) {
-      openCartBtn.addEventListener('click', () => cartDrawer.classList.add('active'));
-      closeCartBtn.addEventListener('click', () => cartDrawer.classList.remove('active'));
-    }
-
-    function renderCart() {
-      if (!cartItemsList) return;
-      cartItemsList.innerHTML = '';
-      let total = 0;
-      cartItems.forEach((item, index) => {
-        total += item.price;
-        const div = document.createElement('div');
-        div.className = 'cart-item';
-        div.innerHTML = `
-          <div>
-            <div style="font-weight: bold; font-size: 0.9rem;">${item.name}</div>
-            <div style="color: var(--cyan); font-size: 0.85rem;">$${item.price}</div>
-          </div>
-          <button style="background:none; border:none; color:var(--neon-pink); cursor:pointer;" onclick="removeItem(${index})"><i class="fa-solid fa-xmark"></i></button>
-        `;
-        cartItemsList.appendChild(div);
-      });
-      if (cartCountEl) cartCountEl.textContent = cartItems.length;
-      if (cartTotalEl) cartTotalEl.textContent = `$${total.toLocaleString()}.00`;
-    }
-
-    function addToCart(name, price) {
-      cartItems.push({ name, price });
-      renderCart();
-      if (cartDrawer) cartDrawer.classList.add('active');
-    }
-
-    function removeItem(index) {
-      cartItems.splice(index, 1);
-      renderCart();
-    }
-
-    renderCart();
-  </script>
+    </script>
 </body>
 </html>

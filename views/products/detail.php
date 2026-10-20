@@ -14,7 +14,11 @@
     <!-- LEFT: Image / Icon Display Box -->
     <div class="product-media-card">
       <div class="product-media-box">
-        <i class="fa-solid <?= e($product['category_icon'] ?? 'fa-microchip') ?> media-icon"></i>
+        <?php if (!empty($product['primary_image'])): ?>
+          <img src="<?= e($product['primary_image']) ?>" alt="<?= e($product['name']) ?>" style="max-width: 100%; max-height: 280px; object-fit: contain; filter: drop-shadow(0 0 15px rgba(0, 245, 255, 0.3));">
+        <?php else: ?>
+          <i class="fa-solid <?= e($product['category_icon'] ?? 'fa-microchip') ?> media-icon"></i>
+        <?php endif; ?>
         <div class="media-badges">
           <span class="badge-tag"><?= e(strtoupper($product['brand'])) ?></span>
           <span class="badge-condition-pill">
@@ -40,7 +44,16 @@
 
       <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
         <div class="product-rating" style="margin: 0;">
-          ★★★★★ <span style="color: var(--muted); font-size: 0.85rem;">(<?= (int)($product['review_count'] ?? 42) ?> Customer Reviews)</span>
+          <?php
+            $avgRating = isset($product['avg_rating']) && $product['avg_rating'] !== null ? round((float)$product['avg_rating']) : 0;
+            $revCount = (int)($product['review_count'] ?? 0);
+          ?>
+          <?php if ($revCount > 0): ?>
+            <span style="color: var(--gold);"><?= str_repeat('★', max(1, min(5, (int)$avgRating))) ?></span>
+            <span style="color: var(--muted); font-size: 0.85rem;">(<?= $revCount ?> <?= $revCount === 1 ? 'Customer Review' : 'Customer Reviews' ?>)</span>
+          <?php else: ?>
+            <span style="color: var(--muted); font-size: 0.85rem;"><i class="fa-regular fa-star"></i> Not yet reviewed</span>
+          <?php endif; ?>
         </div>
         <span style="color: var(--border);">|</span>
         <span style="color: var(--cyan); font-family: 'Orbitron'; font-size: 0.85rem;">

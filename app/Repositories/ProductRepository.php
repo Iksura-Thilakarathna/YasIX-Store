@@ -10,9 +10,10 @@ class ProductRepository extends BaseRepository
 
     public function getFeaturedProducts(int $limit = 8): array
     {
-        $sql = "SELECT p.*, c.name AS category_name, c.slug AS category_slug,
+        $sql = "SELECT p.*, c.name AS category_name, c.slug AS category_slug, c.icon_class AS category_icon,
                        (SELECT AVG(rating) FROM product_reviews pr WHERE pr.product_id = p.id) AS avg_rating,
-                       (SELECT COUNT(*) FROM product_reviews pr WHERE pr.product_id = p.id) AS review_count
+                       (SELECT COUNT(*) FROM product_reviews pr WHERE pr.product_id = p.id) AS review_count,
+                       (SELECT image_path FROM product_images pi WHERE pi.product_id = p.id AND pi.is_primary = 1 LIMIT 1) AS primary_image
                 FROM products p
                 JOIN categories c ON p.category_id = c.id
                 WHERE p.featured = 1 AND p.status = 'AVAILABLE'
@@ -85,7 +86,7 @@ class ProductRepository extends BaseRepository
 
     public function getRelatedProducts(int $categoryId, int $excludeProductId, int $limit = 4): array
     {
-        $sql = "SELECT p.*, c.name AS category_name, c.slug AS category_slug,
+        $sql = "SELECT p.*, c.name AS category_name, c.slug AS category_slug, c.icon_class AS category_icon,
                        (SELECT image_path FROM product_images pi WHERE pi.product_id = p.id AND pi.is_primary = 1 LIMIT 1) AS primary_image
                 FROM products p
                 JOIN categories c ON p.category_id = c.id
@@ -229,10 +230,13 @@ class ProductRepository extends BaseRepository
 
     public function getFlashDealProduct(): ?array
     {
-        $sql = "SELECT p.*, c.name AS category_name 
+        $sql = "SELECT p.*, c.name AS category_name, c.slug AS category_slug, c.icon_class AS category_icon,
+                       (SELECT image_path FROM product_images pi WHERE pi.product_id = p.id AND pi.is_primary = 1 LIMIT 1) AS primary_image
                 FROM products p 
                 JOIN categories c ON p.category_id = c.id 
-                WHERE p.slug = 'yasix-apex-mech-rig-2026-edition' LIMIT 1";
+                WHERE (p.slug = 'yasix-apex-mech-rig-2026-edition' OR p.featured = 1) AND p.status = 'AVAILABLE'
+                ORDER BY (p.slug = 'yasix-apex-mech-rig-2026-edition') DESC, p.id DESC
+                LIMIT 1";
 
         $stmt = $this->db->query($sql);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -241,7 +245,7 @@ class ProductRepository extends BaseRepository
 
     public function findAdminProductById(int $id): ?array
     {
-        $sql = "SELECT p.*, c.name AS category_name, c.slug AS category_slug,
+        $sql = "SELECT p.*, c.name AS category_name, c.slug AS category_slug, c.icon_class AS category_icon,
                        (SELECT image_path FROM product_images pi WHERE pi.product_id = p.id AND pi.is_primary = 1 LIMIT 1) AS primary_image
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
@@ -257,7 +261,7 @@ class ProductRepository extends BaseRepository
         [$whereClause, $params] = $this->buildAdminFilterQuery($filters);
 
         $offset = max(0, ($page - 1) * $perPage);
-        $sql = "SELECT p.*, c.name AS category_name, c.slug AS category_slug,
+        $sql = "SELECT p.*, c.name AS category_name, c.slug AS category_slug, c.icon_class AS category_icon,
                        (SELECT image_path FROM product_images pi WHERE pi.product_id = p.id AND pi.is_primary = 1 LIMIT 1) AS primary_image
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id

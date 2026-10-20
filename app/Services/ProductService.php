@@ -20,7 +20,8 @@ class ProductService extends BaseService
             $products = $this->productRepository->getFeaturedProducts(8);
             if (!empty($products)) {
                 return array_map(function ($product) {
-                    $product['formatted_price'] = '$' . number_format((float)$product['price'], 2);
+                    $product['formatted_price'] = formatCurrency((float)$product['price']);
+                    $product['is_available'] = ($product['status'] === 'AVAILABLE' && (int)$product['stock_quantity'] > 0);
                     return $product;
                 }, $products);
             }
@@ -110,7 +111,7 @@ class ProductService extends BaseService
 
         // Format product prices and attributes
         $formattedProducts = array_map(function ($product) {
-            $product['formatted_price'] = '$' . number_format((float)$product['price'], 2);
+            $product['formatted_price'] = formatCurrency((float)$product['price']);
             $product['is_available'] = ($product['status'] === 'AVAILABLE' && (int)$product['stock_quantity'] > 0);
             return $product;
         }, $products);
@@ -149,7 +150,7 @@ class ProductService extends BaseService
             return null;
         }
 
-        $product['formatted_price'] = '$' . number_format((float)$product['price'], 2);
+        $product['formatted_price'] = formatCurrency((float)$product['price']);
         $product['is_available'] = ($product['status'] === 'AVAILABLE' && (int)$product['stock_quantity'] > 0);
         $product['images'] = $this->productRepository->getProductImages((int)$product['id']);
         $product['related_products'] = $this->productRepository->getRelatedProducts((int)$product['category_id'], (int)$product['id'], 4);
@@ -164,7 +165,7 @@ class ProductService extends BaseService
             return null;
         }
 
-        $product['formatted_price'] = '$' . number_format((float)$product['price'], 2);
+        $product['formatted_price'] = formatCurrency((float)$product['price']);
         $product['is_available'] = ($product['status'] === 'AVAILABLE' && (int)$product['stock_quantity'] > 0);
         $product['images'] = $this->productRepository->getProductImages((int)$product['id']);
         $product['related_products'] = $this->productRepository->getRelatedProducts((int)$product['category_id'], (int)$product['id'], 4);
@@ -188,7 +189,13 @@ class ProductService extends BaseService
     public function getFlashDeal(): ?array
     {
         try {
-            return $this->productRepository->getFlashDealProduct();
+            $deal = $this->productRepository->getFlashDealProduct();
+            if ($deal) {
+                $deal['formatted_price'] = formatCurrency((float)$deal['price']);
+                $deal['is_available'] = ($deal['status'] === 'AVAILABLE' && (int)$deal['stock_quantity'] > 0);
+                return $deal;
+            }
+            return null;
         } catch (Throwable $e) {
             return null;
         }
