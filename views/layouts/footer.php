@@ -53,79 +53,105 @@
   </footer>
 
   <script>
-    // Custom Cursor Script
+    // Custom Cursor Script - Gracefully disabled on touchscreens
     const cursor = document.getElementById('cursor');
     const ring = document.getElementById('cursor-ring');
-    let mouseX = 0, mouseY = 0;
-    let ringX = 0, ringY = 0;
+    const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches || (navigator.maxTouchPoints > 0);
 
-    document.addEventListener('mousemove', (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      cursor.style.left = mouseX + 'px';
-      cursor.style.top = mouseY + 'px';
-    });
+    if (isTouch || !cursor || !ring) {
+      if (cursor) cursor.style.display = 'none';
+      if (ring) ring.style.display = 'none';
+      document.body.style.cursor = 'auto';
+    } else {
+      let mouseX = 0, mouseY = 0;
+      let ringX = 0, ringY = 0;
 
-    function renderCursor() {
-      ringX += (mouseX - ringX) * 0.15;
-      ringY += (mouseY - ringY) * 0.15;
-      ring.style.left = ringX + 'px';
-      ring.style.top = ringY + 'px';
-      requestAnimationFrame(renderCursor);
+      document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        cursor.style.left = mouseX + 'px';
+        cursor.style.top = mouseY + 'px';
+      });
+
+      function renderCursor() {
+        ringX += (mouseX - ringX) * 0.15;
+        ringY += (mouseY - ringY) * 0.15;
+        ring.style.left = ringX + 'px';
+        ring.style.top = ringY + 'px';
+        requestAnimationFrame(renderCursor);
+      }
+      renderCursor();
+
+      // Hover effect on interactive elements
+      const interactiveElements = 'a, button, input, select, textarea, .product-card, .hero-card, .deals-card, .feature-card, .review-card, .tab-btn';
+      document.addEventListener('mouseover', (e) => {
+        if (e.target.closest(interactiveElements)) {
+          document.body.classList.add('cursor-hover');
+        }
+      });
+      document.addEventListener('mouseout', (e) => {
+        if (e.target.closest(interactiveElements)) {
+          document.body.classList.remove('cursor-hover');
+        }
+      });
     }
-    renderCursor();
 
-    // Hover effect
-    const interactiveElements = 'a, button, input, .product-card, .hero-card, .deals-card, .feature-card, .review-card, .tab-btn';
-    document.addEventListener('mouseover', (e) => {
-      if (e.target.closest(interactiveElements)) {
-        document.body.classList.add('cursor-hover');
-      }
-    });
-    document.addEventListener('mouseout', (e) => {
-      if (e.target.closest(interactiveElements)) {
-        document.body.classList.remove('cursor-hover');
-      }
-    });
+    // Mobile Navigation Drawer Toggle
+    const navToggle = document.getElementById('nav-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navLinks.classList.toggle('open');
+      });
+      document.addEventListener('click', (e) => {
+        if (!navLinks.contains(e.target) && !navToggle.contains(e.target)) {
+          navLinks.classList.remove('open');
+        }
+      });
+    }
 
-    // Filter Tabs Script
+    // Filter Tabs Script (Storefront Home)
     const tabBtns = document.querySelectorAll('.tab-btn');
     const productCards = document.querySelectorAll('.product-card');
 
-    tabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        tabBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const cat = btn.getAttribute('data-category');
+    if (tabBtns.length > 0 && productCards.length > 0) {
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const cat = btn.getAttribute('data-category');
 
-        productCards.forEach(card => {
-          if (cat === 'all' || card.getAttribute('data-category') === cat) {
-            card.style.display = 'flex';
-          } else {
-            card.style.display = 'none';
-          }
+          productCards.forEach(card => {
+            if (cat === 'all' || card.getAttribute('data-category') === cat) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          });
         });
       });
-    });
+    }
 
-    // Countdown Timer Script
-    let totalSeconds = 4 * 3600 + 35 * 60 + 12;
+    // Countdown Timer Script (Guarded against missing DOM elements)
     const hoursEl = document.getElementById('hours');
     const minutesEl = document.getElementById('minutes');
     const secondsEl = document.getElementById('seconds');
 
-    setInterval(() => {
-      if (totalSeconds > 0) {
-        totalSeconds--;
-        const h = Math.floor(totalSeconds / 3600);
-        const m = Math.floor((totalSeconds % 3600) / 60);
-        const s = totalSeconds % 60;
-        hoursEl.textContent = String(h).padStart(2, '0');
-        minutesEl.textContent = String(m).padStart(2, '0');
-        secondsEl.textContent = String(s).padStart(2, '0');
-      }
-    }, 1000);
-
-    </script>
+    if (hoursEl && minutesEl && secondsEl) {
+      let totalSeconds = 4 * 3600 + 35 * 60 + 12;
+      setInterval(() => {
+        if (totalSeconds > 0) {
+          totalSeconds--;
+          const h = Math.floor(totalSeconds / 3600);
+          const m = Math.floor((totalSeconds % 3600) / 60);
+          const s = totalSeconds % 60;
+          hoursEl.textContent = String(h).padStart(2, '0');
+          minutesEl.textContent = String(m).padStart(2, '0');
+          secondsEl.textContent = String(s).padStart(2, '0');
+        }
+      }, 1000);
+    }
+  </script>
 </body>
 </html>

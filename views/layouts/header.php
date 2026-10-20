@@ -68,6 +68,9 @@
         <a href="/cart" class="btn-cart" style="text-decoration: none; display: inline-flex; align-items: center;">
           <i class="fa-solid fa-cart-shopping"></i> CART <span class="cart-badge" id="cart-count"><?= $cartBadgeCount ?></span>
         </a>
+        <button class="nav-toggle-btn" id="nav-toggle" aria-label="Toggle Navigation Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
       </div>
     </div>
   </nav>
