@@ -65,7 +65,7 @@
               } catch (\Throwable $e) {}
           }
         ?>
-        <a href="/cart" class="btn-cart" id="open-cart-btn" style="text-decoration: none; display: inline-flex; align-items: center;">
+        <a href="/cart" class="btn-cart" style="text-decoration: none; display: inline-flex; align-items: center;">
           <i class="fa-solid fa-cart-shopping"></i> CART <span class="cart-badge" id="cart-count"><?= $cartBadgeCount ?></span>
         </a>
       </div>
