@@ -50,7 +50,11 @@
           <div class="account-card" style="display: flex; gap: 20px; align-items: center; padding: 20px; flex-wrap: wrap;">
             <!-- Product Icon / Image -->
             <div style="width: 80px; height: 80px; background: rgba(3, 7, 18, 0.8); border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--cyan); flex-shrink: 0;">
-              <i class="fa-solid <?= e($item['category_icon']) ?>"></i>
+              <?php if (!empty($item['primary_image'])): ?>
+                <img src="<?= e($item['primary_image']) ?>" alt="<?= e($item['product_name']) ?>" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+              <?php else: ?>
+                <i class="fa-solid <?= e($item['category_icon']) ?>"></i>
+              <?php endif; ?>
             </div>
 
             <!-- Product Info -->
