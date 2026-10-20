@@ -97,7 +97,12 @@
             </div>
             <?php if ((int)$item['warranty_months'] > 0): ?>
               <div style="font-size: 0.8rem; color: #00ff88; margin-top: 4px;">
-                <i class="fa-solid fa-shield-halved"></i> Warranty: <?= (int)$item['warranty_months'] ?> Months (Starts upon delivery)
+                <i class="fa-solid fa-shield-halved"></i> Warranty: <?= (int)$item['warranty_months'] ?> Months 
+                <?php if (!empty($order['delivered_at'])): ?>
+                  (Active - <a href="/warranties" style="color: #00ff88; text-decoration: underline;">View Coverage & Claims</a>)
+                <?php else: ?>
+                  (Starts upon delivery)
+                <?php endif; ?>
               </div>
             <?php else: ?>
               <div style="font-size: 0.8rem; color: var(--muted); margin-top: 4px;">
