@@ -270,7 +270,7 @@ class ProductService extends BaseService
             return ['success' => false, 'error' => 'Product not found.'];
         }
 
-        $validation = $this->validateProductInput($input, $id);
+        $validation = $this->validateProductInput($input, $id, $existing);
         if (!$validation['success']) {
             return $validation;
         }
@@ -329,7 +329,7 @@ class ProductService extends BaseService
         return $this->productRepository->getInventoryLogs($productId, $limit);
     }
 
-    private function validateProductInput(array $input, ?int $excludeId = null): array
+    private function validateProductInput(array $input, ?int $excludeId = null, ?array $existing = null): array
     {
         $name = trim($input['name'] ?? '');
         if (empty($name) || strlen($name) < 2 || strlen($name) > 200) {
@@ -372,18 +372,18 @@ class ProductService extends BaseService
                 'name' => $name,
                 'slug' => $slug,
                 'category_id' => (int)$input['category_id'],
-                'brand' => trim($input['brand'] ?? 'YasIX') ?: 'YasIX',
-                'description' => trim($input['description'] ?? ''),
+                'brand' => trim($input['brand'] ?? ($existing['brand'] ?? 'YasIX')) ?: 'YasIX',
+                'description' => isset($input['description']) ? trim($input['description']) : ($existing['description'] ?? ''),
                 'price' => (float)$input['price'],
                 'stock_quantity' => (int)$input['stock_quantity'],
-                'weight' => max(0.0, (float)($input['weight'] ?? 0.0)),
-                'package_length' => max(0.0, (float)($input['package_length'] ?? 0.0)),
-                'package_width' => max(0.0, (float)($input['package_width'] ?? 0.0)),
-                'package_height' => max(0.0, (float)($input['package_height'] ?? 0.0)),
-                'warranty_months' => max(0, (int)($input['warranty_months'] ?? 12)),
+                'weight' => max(0.0, (float)($input['weight'] ?? ($existing['weight'] ?? 0.0))),
+                'package_length' => max(0.0, (float)($input['package_length'] ?? ($existing['package_length'] ?? 0.0))),
+                'package_width' => max(0.0, (float)($input['package_width'] ?? ($existing['package_width'] ?? 0.0))),
+                'package_height' => max(0.0, (float)($input['package_height'] ?? ($existing['package_height'] ?? 0.0))),
+                'warranty_months' => max(0, (int)($input['warranty_months'] ?? ($existing['warranty_months'] ?? 12))),
                 'condition' => $condition,
                 'status' => $status,
-                'featured' => !empty($input['featured']) ? 1 : 0
+                'featured' => !empty($input['featured']) ? 1 : ($existing['featured'] ?? 0)
             ]
         ];
     }
