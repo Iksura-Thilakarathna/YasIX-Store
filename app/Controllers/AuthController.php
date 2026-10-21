@@ -64,10 +64,18 @@ class AuthController extends BaseController
 
         Session::setFlash('success', "Welcome back to the Matrix, " . htmlspecialchars($user->name) . "!");
         if (strtoupper($user->role_name ?? '') === 'ADMIN') {
-            header('Location: ' . getenv('APP_URL') . '/admin');
+            $base = rtrim((string)(getenv('APP_URL') ?: ''), '/');
+            header('Location: ' . ($base ? $base . '/admin' : '/admin'));
             exit;
         }
-        header('Location: ' . getenv('APP_URL') . '/account');
+
+        $returnUrl = Session::get('return_url');
+        Session::remove('return_url');
+        $dest = ($returnUrl && !str_starts_with($returnUrl, '/login') && !str_starts_with($returnUrl, '/logout'))
+            ? $returnUrl
+            : '/account';
+        $base = rtrim((string)(getenv('APP_URL') ?: ''), '/');
+        header('Location: ' . ($base ? $base . $dest : $dest));
         exit;
     }
 

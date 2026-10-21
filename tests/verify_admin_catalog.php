@@ -152,6 +152,11 @@ if ($histItem) {
     $histSavedPrice = (float)$histItem['unit_price'];
     $histSavedWarranty = (int)$histItem['warranty_months'];
 
+    // Snapshot original product attributes to restore after immutability check
+    $origProdStmt = $pdo->prepare("SELECT * FROM products WHERE id = :id");
+    $origProdStmt->execute(['id' => $histProdId]);
+    $origProd = $origProdStmt->fetch(PDO::FETCH_ASSOC);
+
     // Now update this product's current catalog price and warranty
     $updateResult = $productService->updateProduct($histProdId, [
         'name' => 'Updated Historical Name ' . bin2hex(random_bytes(2)),
@@ -173,6 +178,19 @@ if ($histItem) {
     assert((int)$verifiedHist['warranty_months'] === $histSavedWarranty, "Historical warranty snapshot was mutated!");
 
     echo "[PASS] Historical order item unit price (LKR " . number_format($histSavedPrice, 2) . ") and warranty snapshot intact after product catalog update.\n";
+
+    // Restore product catalog record to prevent side-effects on subsequent test suites
+    if ($origProd) {
+        $productService->updateProduct($histProdId, [
+            'name' => $origProd['name'],
+            'category_id' => (int)$origProd['category_id'],
+            'price' => (float)$origProd['price'],
+            'stock_quantity' => (int)$origProd['stock_quantity'],
+            'warranty_months' => (int)$origProd['warranty_months'],
+            'condition' => $origProd['condition'],
+            'status' => $origProd['status']
+        ]);
+    }
 }
 
 // --------------------------------------------------------------------------

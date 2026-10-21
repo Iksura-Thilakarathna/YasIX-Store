@@ -1559,3 +1559,165 @@ footer {
 
 
 
+
+
+/* ==========================================================================
+   COMMIT 6: RESPONSIVE POLISH & ACCESSIBILITY ENHANCEMENTS
+   ========================================================================== */
+
+/* Mobile Navigation Toggle Button */
+.nav-toggle-btn {
+  display: none;
+  background: rgba(0, 245, 255, 0.08);
+  border: 1px solid var(--border);
+  color: var(--cyan);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.nav-toggle-btn:hover {
+  background: rgba(0, 245, 255, 0.18);
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px rgba(0, 245, 255, 0.3);
+}
+
+/* Touchscreens and Pointer Coarse Fallbacks for Custom Cursor */
+@media (hover: none) and (pointer: coarse) {
+  body {
+    cursor: auto !important;
+  }
+  .cursor,
+  .cursor-ring {
+    display: none !important;
+  }
+  a, button, input, select, textarea, label {
+    cursor: pointer !important;
+  }
+}
+
+/* High-Contrast Accessible Focus Rings */
+:focus-visible {
+  outline: 2px solid var(--cyan) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.5) !important;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--cyan) !important;
+  outline-offset: 2px !important;
+}
+
+/* Respect Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .bg-grid, .glow-orb-1, .glow-orb-2, .cyber-spinner, .pulse-dot {
+    animation: none !important;
+  }
+}
+
+/* Responsive Navigation Drawer & Mobile Layouts */
+@media (max-width: 900px) {
+  .nav-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(8, 10, 22, 0.98);
+    border-bottom: 2px solid var(--cyan);
+    backdrop-filter: blur(20px);
+    flex-direction: column;
+    padding: 24px;
+    gap: 14px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.85);
+    z-index: 1000;
+  }
+
+  .nav-links.open {
+    display: flex;
+  }
+
+  .nav-links li {
+    width: 100%;
+  }
+
+  .nav-links a,
+  .nav-links button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+
+  .nav-status {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .account-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .account-header > div:last-child {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .account-header > div:last-child a {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .alert-banner {
+    padding: 14px 18px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2rem;
+    line-height: 1.15;
+  }
+
+  .auth-box {
+    padding: 24px 16px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 10px 18px;
+  }
+}

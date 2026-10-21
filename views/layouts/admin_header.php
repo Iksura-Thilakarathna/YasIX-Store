@@ -66,7 +66,7 @@ $adminName = \App\Helpers\Session::get('user_name', 'Administrator');
       <a href="/" target="_blank" class="nav-btn" style="color: var(--neon-cyan); border: 1px solid rgba(0, 240, 255, 0.25); justify-content: center; font-size: 0.85rem;">
         <i class="fa-solid fa-arrow-up-right-from-square"></i> Storefront
       </a>
-      <form action="/logout" method="POST" style="margin: 0;">
+      <form action="/admin/logout" method="POST" style="margin: 0;">
         <?= \App\Helpers\CSRF::field() ?>
         <button type="submit" class="nav-btn" style="color: var(--neon-crimson); border: 1px solid rgba(255, 51, 102, 0.25); justify-content: center; font-size: 0.85rem;">
           <i class="fa-solid fa-right-from-bracket"></i> Disconnect

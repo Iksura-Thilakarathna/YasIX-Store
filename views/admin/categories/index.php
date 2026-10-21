@@ -142,7 +142,7 @@
               <td style="text-align: right; white-space: nowrap;">
                 <div style="display: inline-flex; gap: 6px; align-items: center;">
                   <!-- Toggle Status -->
-                  <form action="/admin/categories/<?= (int)$c['id'] ?>/toggle-status" method="POST" style="display:inline;">
+                  <form action="/admin/categories/<?= (int)$c['id'] ?>/toggle-status" method="POST" style="display:inline;" onsubmit="return confirm('Change status for category <?= e($c['name']) ?>?');">
                     <?= \App\Helpers\CSRF::field() ?>
                     <?php if (($c['status'] ?? 'ACTIVE') === 'ACTIVE'): ?>
                       <button type="submit" class="btn-admin btn-admin-danger btn-admin-sm" title="Deactivate Category">

@@ -24,6 +24,19 @@
       </div>
     <?php endif; ?>
 
+    <?php if (!empty($errors) && is_array($errors)): ?>
+      <div class="alert-banner alert-error">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div>
+          <?php foreach ($errors as $fieldErrors): ?>
+            <?php foreach ((array)$fieldErrors as $err): ?>
+              <div><?= e($err) ?></div>
+            <?php endforeach; ?>
+          <?php endforeach; ?>
+        </div>
+      </div>
+    <?php endif; ?>
+
     <form action="/login" method="POST">
       <?= \App\Helpers\CSRF::field() ?>
 

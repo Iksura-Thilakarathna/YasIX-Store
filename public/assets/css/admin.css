@@ -699,3 +699,70 @@ body.admin-body {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+
+/* ==========================================================================
+   COMMIT 6: ADMIN RESPONSIVE POLISH & ACCESSIBILITY
+   ========================================================================== */
+
+/* Accessible Focus States */
+:focus-visible {
+  outline: 2px solid var(--neon-cyan) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.5) !important;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .admin-bg-grid {
+    animation: none !important;
+  }
+}
+
+/* Admin Responsive Split Layouts & Form Grids */
+@media (max-width: 992px) {
+  div[style*="grid-template-columns: 2fr 1fr"],
+  div[style*="grid-template-columns: 1fr 2fr"],
+  div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-header {
+    padding: 0 16px;
+  }
+
+  .admin-content {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  div[style*="grid-template-columns: 1fr 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-header-title {
+    font-size: 1rem;
+  }
+
+  .admin-user-pill .user-info-text {
+    display: none;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

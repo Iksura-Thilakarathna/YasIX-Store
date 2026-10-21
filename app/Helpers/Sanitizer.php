@@ -40,7 +40,7 @@ if (!function_exists('e')) {
 
 // Global Currency formatting helper function
 if (!function_exists('formatCurrency')) {
-    function formatCurrency(float $amount, string $currencySymbol = '$'): string {
+    function formatCurrency(float $amount, string $currencySymbol = 'LKR '): string {
         return $currencySymbol . number_format($amount, 2);
     }
 }

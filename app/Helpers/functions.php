@@ -23,3 +23,9 @@ if (!function_exists('formatLKR')) {
         return 'LKR ' . number_format($amount, 2);
     }
 }
+
+if (!function_exists('csrf_field')) {
+    function csrf_field(): string {
+        return \App\Helpers\CSRF::field();
+    }
+}

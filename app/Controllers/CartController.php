@@ -36,6 +36,11 @@ class CartController extends BaseController
         Session::start();
 
         if (!Session::has('user_id')) {
+            $returnUrl = $_SERVER['HTTP_REFERER'] ?? '/cart';
+            $path = parse_url($returnUrl, PHP_URL_PATH);
+            if ($path && !str_starts_with($path, '/login') && !str_starts_with($path, '/logout')) {
+                Session::set('return_url', $path);
+            }
             if ($this->isAjax()) {
                 http_response_code(401);
                 header('Content-Type: application/json');
@@ -47,7 +52,8 @@ class CartController extends BaseController
                 exit;
             }
             Session::setFlash('error', 'Please log in to add items to your cart.');
-            header('Location: ' . getenv('APP_URL') . '/login');
+            $base = rtrim((string)(getenv('APP_URL') ?: ''), '/');
+            header('Location: ' . ($base ? $base . '/login' : '/login'));
             exit;
         }
 

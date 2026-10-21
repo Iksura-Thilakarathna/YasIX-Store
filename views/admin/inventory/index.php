@@ -69,7 +69,7 @@
                 <?php endif; ?>
               </td>
               <td>
-                <form action="/admin/inventory/adjust" method="POST" style="display: flex; gap: 6px; align-items: center;">
+                <form action="/admin/inventory/adjust" method="POST" style="display: flex; gap: 6px; align-items: center;" onsubmit="return confirm('Apply inventory stock adjustment for this product?');">
                   <?= \App\Helpers\CSRF::field() ?>
                   <input type="hidden" name="product_id" value="<?= (int)$prod['id'] ?>">
                   

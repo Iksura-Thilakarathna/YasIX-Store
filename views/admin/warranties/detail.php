@@ -167,7 +167,7 @@
             </p>
           </div>
         <?php else: ?>
-          <form method="POST" action="/admin/warranties/<?= (int)$claim['id'] ?>/decide">
+          <form method="POST" action="/admin/warranties/<?= (int)$claim['id'] ?>/decide" onsubmit="return confirm('Record adjudication decision for warranty claim?');">
             <?= csrf_field() ?>
 
             <div class="admin-form-group">

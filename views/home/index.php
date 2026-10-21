@@ -9,7 +9,7 @@
           Engineered for extreme gaming performance, quantum neural processing, and ultra low-latency cybernetic gear.
         </p>
         <div class="hero-buttons">
-          <a href="#store" class="btn-primary">EXPLORE CATALOG <i class="fa-solid fa-rocket"></i></a>
+          <a href="/products" class="btn-primary">EXPLORE CATALOG <i class="fa-solid fa-rocket"></i></a>
           <a href="#deals" class="btn-secondary">VIEW FLASH DEALS <i class="fa-solid fa-fire-flame-curved" style="color: var(--neon-pink);"></i></a>
         </div>
       </div>
@@ -25,7 +25,11 @@
         <p class="hero-card-specs"><?= e($flashDeal['description'] ?? '32GB GDDR7 | Liquid Nitrogen Cooled | 6.0 GHz Quantum Chipset') ?></p>
         <div class="hero-card-footer">
           <div class="hero-card-price"><?= formatCurrency((float)($flashDeal['price'] ?? 3499.00)) ?></div>
-          <button class="btn-primary" onclick="addToCart('<?= e($flashDeal['name'] ?? 'YasIX Neural Rig RTX 5090') ?>', <?= (float)($flashDeal['price'] ?? 3499) ?>)" style="padding: 8px 16px; font-size: 0.85rem;">PRE-ORDER</button>
+          <?php if (!empty($flashDeal['slug'])): ?>
+            <a href="/products/<?= e($flashDeal['slug']) ?>" class="btn-primary" style="padding: 8px 16px; font-size: 0.85rem; text-decoration: none;">VIEW RIG <i class="fa-solid fa-arrow-right"></i></a>
+          <?php else: ?>
+            <a href="/products" class="btn-primary" style="padding: 8px 16px; font-size: 0.85rem; text-decoration: none;">EXPLORE <i class="fa-solid fa-arrow-right"></i></a>
+          <?php endif; ?>
         </div>
       </div>
     </div>
@@ -80,20 +84,61 @@
       <?php if (!empty($products)): ?>
         <?php foreach ($products as $item): ?>
           <div class="product-card" data-category="<?= e($item['category_slug'] ?? 'quantum-gear') ?>">
-            <div class="product-tag"><?= e($item['tag'] ?? 'FEATURED') ?></div>
-            <div class="product-img-box">
-              <i class="fa-solid <?= e($item['icon'] ?? 'fa-microchip') ?> product-icon"></i>
+            <div class="product-tag"><?= e($item['brand'] ?? 'FEATURED') ?></div>
+            <div class="product-img-box" style="position: relative;">
+              <?php if (!empty($item['primary_image'])): ?>
+                <img src="<?= e($item['primary_image']) ?>" alt="<?= e($item['name']) ?>" style="max-width: 100%; max-height: 140px; object-fit: contain;">
+              <?php else: ?>
+                <i class="fa-solid <?= e($item['category_icon'] ?? $item['icon'] ?? 'fa-microchip') ?> product-icon"></i>
+              <?php endif; ?>
+              <span class="badge-condition-pill" style="position: absolute; top: 10px; right: 10px; font-size: 0.7rem; padding: 2px 6px;">
+                <?= e(($item['condition'] ?? 'NEW') === 'REFURBISHED' ? 'REFURB' : (($item['condition'] ?? '') === 'CUSTOM_MOD' ? 'MOD' : 'NEW')) ?>
+              </span>
             </div>
-            <h3 class="product-title"><?= e($item['name']) ?></h3>
-            <p class="product-desc"><?= e($item['description']) ?></p>
+            <h3 class="product-title">
+              <a href="/products/<?= e($item['slug'] ?? '') ?>" style="color: var(--text); text-decoration: none;">
+                <?= e($item['name']) ?>
+              </a>
+            </h3>
+            <p class="product-desc"><?= e($item['description'] ?? '') ?></p>
+            
+            <?php
+              $avgRating = isset($item['avg_rating']) && $item['avg_rating'] !== null ? round((float)$item['avg_rating']) : 0;
+              $revCount = (int)($item['review_count'] ?? $item['reviews_count'] ?? 0);
+            ?>
             <div class="product-rating">
-              ★★★★★ <span>(<?= (int)($item['reviews_count'] ?? 100) ?> Reviews)</span>
+              <?php if ($revCount > 0): ?>
+                <span style="color: var(--gold);"><?= str_repeat('★', max(1, min(5, (int)$avgRating))) ?></span>
+                <span>(<?= $revCount ?>)</span>
+              <?php else: ?>
+                <span style="color: var(--muted); font-size: 0.8rem;"><i class="fa-regular fa-star"></i> Unreviewed</span>
+              <?php endif; ?>
+              <span style="color: var(--cyan); margin-left: auto; font-size: 0.75rem;">
+                <i class="fa-solid fa-shield-halved"></i> <?= (int)($item['warranty_months'] ?? 12) ?>M
+              </span>
             </div>
+            
             <div class="product-footer">
               <div class="product-price"><?= formatCurrency((float)$item['price']) ?></div>
-              <button class="btn-add-cart" onclick="addToCart('<?= e($item['name']) ?>', <?= (float)$item['price'] ?>)">
-                <i class="fa-solid fa-cart-plus"></i> ADD TO CART
-              </button>
+              <div style="display: flex; gap: 6px;">
+                <a href="/products/<?= e($item['slug'] ?? '') ?>" class="btn-secondary" style="padding: 6px 10px; font-size: 0.8rem;" title="View Details">
+                  <i class="fa-solid fa-arrow-right"></i>
+                </a>
+                <?php if (!empty($item['is_available'])): ?>
+                  <form action="/cart/add" method="POST" style="margin: 0; display: inline;">
+                    <?= \App\Helpers\CSRF::field() ?>
+                    <input type="hidden" name="product_id" value="<?= (int)$item['id'] ?>">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="btn-add-cart" style="padding: 6px 12px; font-size: 0.8rem;" title="Add to Cart">
+                      <i class="fa-solid fa-cart-plus"></i> ADD
+                    </button>
+                  </form>
+                <?php else: ?>
+                  <button class="btn-add-cart" disabled style="opacity: 0.4; cursor: not-allowed; padding: 6px 12px; font-size: 0.8rem;" title="Out of Stock">
+                    <i class="fa-solid fa-ban"></i> OUT
+                  </button>
+                <?php endif; ?>
+              </div>
             </div>
           </div>
         <?php endforeach; ?>
@@ -108,13 +153,13 @@
     <div class="deals-card">
       <div class="deals-info">
         <div class="deals-timer-header">
-          <i class="fa-solid fa-bolt-lightning"></i> DAILY CYBER FLASH DROP // 40% OFF
+          <i class="fa-solid fa-bolt-lightning"></i> DAILY CYBER FLASH DROP // LIMITED RUN
         </div>
         <h2 class="section-title" style="font-size: 2.2rem; margin-bottom: 16px;">
-          YasIX Apex Mech-Rig 2026 Edition
+          <?= e($flashDeal['name'] ?? 'YasIX Apex Mech-Rig 2026 Edition') ?>
         </h2>
         <p style="color: var(--muted); line-height: 1.6; margin-bottom: 24px;">
-          Custom handcrafted titanium workstation rig with integrated liquid nitrogen loop and dual RTX 5090 GPUs. Special 24-hour flash offer.
+          <?= e($flashDeal['description'] ?? 'Custom handcrafted titanium workstation rig with integrated liquid nitrogen loop and dual RTX 5090 GPUs.') ?>
         </p>
 
         <div class="countdown-box">
@@ -134,26 +179,38 @@
 
         <div class="progress-bar-container">
           <div class="progress-label">
-            <span>Stock Claimed: 78%</span>
-            <span>Only 11 Units Left</span>
+            <span>Stock Status: <?= !empty($flashDeal['is_available']) ? 'In Stock' : 'Reserved' ?></span>
+            <span><?= (int)($flashDeal['stock_quantity'] ?? 0) ?> Units In Vault</span>
           </div>
           <div class="progress-bar">
-            <div class="progress-fill"></div>
+            <div class="progress-fill" style="width: <?= min(100, max(25, (int)($flashDeal['stock_quantity'] ?? 5) * 10)) ?>%;"></div>
           </div>
         </div>
       </div>
 
       <div style="text-align: center; background: rgba(0,0,0,0.3); padding: 32px; border-radius: 16px; border: 1px solid rgba(255,0,85,0.2);">
         <div style="margin-bottom: 20px;">
-          <i class="fa-solid fa-gamepad" style="font-size: 5.5rem; color: var(--neon-pink); filter: drop-shadow(0 0 20px var(--neon-pink));"></i>
+          <?php if (!empty($flashDeal['primary_image'])): ?>
+            <img src="<?= e($flashDeal['primary_image']) ?>" alt="<?= e($flashDeal['name'] ?? 'Flash Deal') ?>" style="max-height: 150px; object-fit: contain;">
+          <?php else: ?>
+            <i class="fa-solid <?= e($flashDeal['category_icon'] ?? 'fa-gamepad') ?>" style="font-size: 5.5rem; color: var(--neon-pink); filter: drop-shadow(0 0 20px var(--neon-pink));"></i>
+          <?php endif; ?>
         </div>
         <div style="font-family: 'Orbitron'; font-size: 2rem; color: var(--gold); margin-bottom: 8px;">
-          $2,999.00 <span style="font-size: 1.1rem; color: var(--muted); text-decoration: line-through;">$4,999.00</span>
+          <?= formatCurrency((float)($flashDeal['price'] ?? 2999.00)) ?>
         </div>
-        <p style="color: var(--neon-pink); font-family: 'Orbitron'; font-size: 0.9rem; margin-bottom: 24px;">YOU SAVE $2,000.00 INSTANTLY</p>
-        <button class="btn-primary" onclick="addToCart('YasIX Apex Mech-Rig', 2999)" style="background: linear-gradient(135deg, var(--neon-pink), var(--violet)); box-shadow: 0 0 20px rgba(255,0,85,0.5); width: 100%; justify-content: center;">
-          CLAIM DEAL NOW <i class="fa-solid fa-fire-flame-curved"></i>
-        </button>
+        <p style="color: var(--cyan); font-family: 'Orbitron'; font-size: 0.85rem; margin-bottom: 24px;">
+          <i class="fa-solid fa-shield-halved"></i> <?= (int)($flashDeal['warranty_months'] ?? 12) ?>M OFFICIAL WARRANTY
+        </p>
+        <?php if (!empty($flashDeal['slug'])): ?>
+          <a href="/products/<?= e($flashDeal['slug']) ?>" class="btn-primary" style="background: linear-gradient(135deg, var(--neon-pink), var(--violet)); box-shadow: 0 0 20px rgba(255,0,85,0.5); width: 100%; justify-content: center; text-decoration: none;">
+            VIEW FULL SPECIFICATIONS <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        <?php else: ?>
+          <a href="/products" class="btn-primary" style="background: linear-gradient(135deg, var(--neon-pink), var(--violet)); box-shadow: 0 0 20px rgba(255,0,85,0.5); width: 100%; justify-content: center; text-decoration: none;">
+            EXPLORE STORE <i class="fa-solid fa-rocket"></i>
+          </a>
+        <?php endif; ?>
       </div>
     </div>
   </div>

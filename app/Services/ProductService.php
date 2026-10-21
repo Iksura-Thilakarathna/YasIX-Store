@@ -20,7 +20,8 @@ class ProductService extends BaseService
             $products = $this->productRepository->getFeaturedProducts(8);
             if (!empty($products)) {
                 return array_map(function ($product) {
-                    $product['formatted_price'] = '$' . number_format((float)$product['price'], 2);
+                    $product['formatted_price'] = formatCurrency((float)$product['price']);
+                    $product['is_available'] = ($product['status'] === 'AVAILABLE' && (int)$product['stock_quantity'] > 0);
                     return $product;
                 }, $products);
             }
@@ -110,7 +111,7 @@ class ProductService extends BaseService
 
         // Format product prices and attributes
         $formattedProducts = array_map(function ($product) {
-            $product['formatted_price'] = '$' . number_format((float)$product['price'], 2);
+            $product['formatted_price'] = formatCurrency((float)$product['price']);
             $product['is_available'] = ($product['status'] === 'AVAILABLE' && (int)$product['stock_quantity'] > 0);
             return $product;
         }, $products);
@@ -149,7 +150,7 @@ class ProductService extends BaseService
             return null;
         }
 
-        $product['formatted_price'] = '$' . number_format((float)$product['price'], 2);
+        $product['formatted_price'] = formatCurrency((float)$product['price']);
         $product['is_available'] = ($product['status'] === 'AVAILABLE' && (int)$product['stock_quantity'] > 0);
         $product['images'] = $this->productRepository->getProductImages((int)$product['id']);
         $product['related_products'] = $this->productRepository->getRelatedProducts((int)$product['category_id'], (int)$product['id'], 4);
@@ -164,7 +165,7 @@ class ProductService extends BaseService
             return null;
         }
 
-        $product['formatted_price'] = '$' . number_format((float)$product['price'], 2);
+        $product['formatted_price'] = formatCurrency((float)$product['price']);
         $product['is_available'] = ($product['status'] === 'AVAILABLE' && (int)$product['stock_quantity'] > 0);
         $product['images'] = $this->productRepository->getProductImages((int)$product['id']);
         $product['related_products'] = $this->productRepository->getRelatedProducts((int)$product['category_id'], (int)$product['id'], 4);
@@ -188,7 +189,13 @@ class ProductService extends BaseService
     public function getFlashDeal(): ?array
     {
         try {
-            return $this->productRepository->getFlashDealProduct();
+            $deal = $this->productRepository->getFlashDealProduct();
+            if ($deal) {
+                $deal['formatted_price'] = formatCurrency((float)$deal['price']);
+                $deal['is_available'] = ($deal['status'] === 'AVAILABLE' && (int)$deal['stock_quantity'] > 0);
+                return $deal;
+            }
+            return null;
         } catch (Throwable $e) {
             return null;
         }
@@ -263,7 +270,7 @@ class ProductService extends BaseService
             return ['success' => false, 'error' => 'Product not found.'];
         }
 
-        $validation = $this->validateProductInput($input, $id);
+        $validation = $this->validateProductInput($input, $id, $existing);
         if (!$validation['success']) {
             return $validation;
         }
@@ -322,7 +329,7 @@ class ProductService extends BaseService
         return $this->productRepository->getInventoryLogs($productId, $limit);
     }
 
-    private function validateProductInput(array $input, ?int $excludeId = null): array
+    private function validateProductInput(array $input, ?int $excludeId = null, ?array $existing = null): array
     {
         $name = trim($input['name'] ?? '');
         if (empty($name) || strlen($name) < 2 || strlen($name) > 200) {
@@ -365,18 +372,18 @@ class ProductService extends BaseService
                 'name' => $name,
                 'slug' => $slug,
                 'category_id' => (int)$input['category_id'],
-                'brand' => trim($input['brand'] ?? 'YasIX') ?: 'YasIX',
-                'description' => trim($input['description'] ?? ''),
+                'brand' => trim($input['brand'] ?? ($existing['brand'] ?? 'YasIX')) ?: 'YasIX',
+                'description' => isset($input['description']) ? trim($input['description']) : ($existing['description'] ?? ''),
                 'price' => (float)$input['price'],
                 'stock_quantity' => (int)$input['stock_quantity'],
-                'weight' => max(0.0, (float)($input['weight'] ?? 0.0)),
-                'package_length' => max(0.0, (float)($input['package_length'] ?? 0.0)),
-                'package_width' => max(0.0, (float)($input['package_width'] ?? 0.0)),
-                'package_height' => max(0.0, (float)($input['package_height'] ?? 0.0)),
-                'warranty_months' => max(0, (int)($input['warranty_months'] ?? 12)),
+                'weight' => max(0.0, (float)($input['weight'] ?? ($existing['weight'] ?? 0.0))),
+                'package_length' => max(0.0, (float)($input['package_length'] ?? ($existing['package_length'] ?? 0.0))),
+                'package_width' => max(0.0, (float)($input['package_width'] ?? ($existing['package_width'] ?? 0.0))),
+                'package_height' => max(0.0, (float)($input['package_height'] ?? ($existing['package_height'] ?? 0.0))),
+                'warranty_months' => max(0, (int)($input['warranty_months'] ?? ($existing['warranty_months'] ?? 12))),
                 'condition' => $condition,
                 'status' => $status,
-                'featured' => !empty($input['featured']) ? 1 : 0
+                'featured' => !empty($input['featured']) ? 1 : ($existing['featured'] ?? 0)
             ]
         ];
     }

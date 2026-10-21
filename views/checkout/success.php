@@ -90,7 +90,10 @@
     </div>
 
     <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
-      <a href="/products" class="btn-primary" style="padding: 12px 24px;">
+      <a href="/orders/<?= e($order['order_number']) ?>/track" class="btn-primary" style="padding: 12px 24px; background: linear-gradient(135deg, var(--cyan), var(--blue));">
+        TRACK LIVE DISPATCH <i class="fa-solid fa-location-crosshairs"></i>
+      </a>
+      <a href="/products" class="btn-secondary" style="padding: 12px 24px;">
         CONTINUE BROWSING <i class="fa-solid fa-bag-shopping"></i>
       </a>
       <a href="/account" class="btn-secondary" style="padding: 12px 24px;">

@@ -172,7 +172,7 @@
             </p>
           </div>
         <?php else: ?>
-          <form method="POST" action="/admin/orders/<?= urlencode($order['order_number']) ?>/status">
+          <form method="POST" action="/admin/orders/<?= urlencode($order['order_number']) ?>/status" onsubmit="return confirm('Advance order fulfilment status to selected state?');">
             <?= csrf_field() ?>
 
             <div class="admin-form-group">
@@ -239,7 +239,7 @@
             <i class="fa-solid fa-circle-check"></i> Cash on Delivery settled in full.
           </div>
         <?php else: ?>
-          <form method="POST" action="/admin/orders/<?= urlencode($order['order_number']) ?>/collect-payment">
+          <form method="POST" action="/admin/orders/<?= urlencode($order['order_number']) ?>/collect-payment" onsubmit="return confirm('Confirm Cash on Delivery collection for this order?');">
             <?= csrf_field() ?>
             <input type="hidden" name="amount_collected" value="<?= (float)$order['total_amount'] ?>">
 
