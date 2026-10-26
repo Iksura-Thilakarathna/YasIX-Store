@@ -3,10 +3,17 @@
 .env.local
 .env.*.local
 
-# Database & log files
+# Database & runtime log files
 *.log
 *.sqlite
 *.sql.gz
+error_log
+
+# Session files & temporary directories
+tmp/
+temp/
+sessions/
+*.pid
 
 # IDEs & Editors
 .vscode/
@@ -15,7 +22,9 @@
 *.swo
 .DS_Store
 Thumbs.db
+ehthumbs.db
 
-# OS / Temp files
-tmp/
-temp/
+# Test caches & artifacts
+.phpunit.cache/
+.phpunit.result.cache
+coverage/
